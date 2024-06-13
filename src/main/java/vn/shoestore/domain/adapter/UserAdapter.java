@@ -1,7 +1,7 @@
 package vn.shoestore.domain.adapter;
 
-import vn.shoestore.shared.dto.CustomUserDetails;
+import vn.shoestore.domain.model.User;
 
 public interface UserAdapter {
-  CustomUserDetails loadUserByUsername(String username);
+  User getUserByUsername(String username);
 }
