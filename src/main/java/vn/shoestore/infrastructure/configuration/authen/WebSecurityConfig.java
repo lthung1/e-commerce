@@ -56,6 +56,8 @@ public class WebSecurityConfig {
                     .requestMatchers("/api/**")
                     .authenticated()
                     .requestMatchers("/open-api/**")
+                    .permitAll()
+                    .requestMatchers("/auth/**")
                     .permitAll());
     return http.build();
   }
@@ -77,5 +79,10 @@ public class WebSecurityConfig {
   public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
       throws Exception {
     return config.getAuthenticationManager();
+  }
+
+  @Bean
+  public JwtAuthFilter jwtAuthenticationFilter() {
+    return new JwtAuthFilter();
   }
 }

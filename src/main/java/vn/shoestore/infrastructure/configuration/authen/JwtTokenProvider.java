@@ -1,9 +1,10 @@
-package vn.shoestore.infrastructure.configuration;
+package vn.shoestore.infrastructure.configuration.authen;
 
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import vn.shoestore.domain.model.User;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -19,9 +20,9 @@ public class JwtTokenProvider {
   @Value("${vn.shoe_store.secret.jwt_expiration_ms}")
   private int jwtExpirationMs;
 
-  public String generateJwtToken(String accessToken) {
+  public String generateJwtToken(User user) {
     return Jwts.builder()
-        .claim(ACCESS_TOKEN_CLAIM, accessToken)
+        .setSubject(user.getUsername())
         .setIssuedAt(new Date())
         .setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
         .signWith(SignatureAlgorithm.HS256, jwtSecret.getBytes(StandardCharsets.UTF_8))
