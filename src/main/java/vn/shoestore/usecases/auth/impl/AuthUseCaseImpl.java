@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import vn.shoestore.application.request.LoginRequest;
+import vn.shoestore.application.request.RegisterRequest;
 import vn.shoestore.application.response.LoginResponse;
 import vn.shoestore.domain.adapter.UserAdapter;
 import vn.shoestore.domain.model.User;
@@ -13,6 +14,7 @@ import vn.shoestore.infrastructure.configuration.authen.JwtTokenProvider;
 import vn.shoestore.shared.anotation.UseCase;
 import vn.shoestore.shared.constants.ExceptionMessage;
 import vn.shoestore.shared.exceptions.NotAuthorizedException;
+import vn.shoestore.shared.utils.ModelMapperUtils;
 import vn.shoestore.usecases.auth.IAuthUseCase;
 
 import java.time.LocalDateTime;
@@ -24,8 +26,6 @@ import java.util.Objects;
 public class AuthUseCaseImpl implements IAuthUseCase {
 
   private final UserAdapter userAdapter;
-
-  private final EncryptDecryptService encryptDecryptService;
 
   private final JwtTokenProvider jwtTokenProvider;
 
@@ -49,5 +49,12 @@ public class AuthUseCaseImpl implements IAuthUseCase {
         .accessToken(jwtTokenProvider.generateJwtToken(user))
         .expiresIn(LocalDateTime.now().plusSeconds(jwtExpirationMs / 1000))
         .build();
+  }
+
+  @Override
+  public User register(RegisterRequest request) {
+    User user = ModelMapperUtils.mapper(request , User.class);
+    user.setPassword(passwordEncoder.encode(request.getPassword()));
+    return userAdapter.save(user);
   }
 }
