@@ -1,5 +1,6 @@
 package vn.shoestore.application.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,7 +12,6 @@ import vn.shoestore.application.response.BaseResponse;
 import vn.shoestore.application.response.LoginResponse;
 import vn.shoestore.domain.model.User;
 
-import javax.validation.Valid;
 
 @RequestMapping("/auth")
 @RestController
