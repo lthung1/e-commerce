@@ -16,6 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import vn.shoestore.domain.service.UserService;
 
@@ -32,9 +33,7 @@ public class WebSecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
         .headers(
-            header -> {
-              header.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin);
-            })
+            header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
         .cors(
             cors ->
                 cors.configurationSource(
@@ -49,8 +48,6 @@ public class WebSecurityConfig {
         .authorizeHttpRequests(
             (authorize) ->
                 authorize
-                    .requestMatchers("/api/authenticate", "/login", "/logout", "/register")
-                    .permitAll()
                     .requestMatchers("/api/v1/**")
                     .authenticated()
                     .requestMatchers("/api/**")
@@ -58,7 +55,8 @@ public class WebSecurityConfig {
                     .requestMatchers("/open-api/**")
                     .permitAll()
                     .requestMatchers("/auth/**")
-                    .permitAll());
+                    .permitAll())
+        .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
 

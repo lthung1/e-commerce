@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -17,8 +19,7 @@ public class User {
 
   private String username;
 
-  @JsonIgnore
-  private String password;
+  @JsonIgnore private String password;
 
   private String email;
 
@@ -26,10 +27,11 @@ public class User {
 
   private String lastName;
 
-  @Builder.Default
-  private Boolean active = true;
+  @Builder.Default private Boolean active = true;
 
   private LocalDateTime createdDate;
 
   private LocalDateTime updatedDate;
+
+  @Builder.Default List<Role> roles = new ArrayList<>();
 }

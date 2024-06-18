@@ -5,10 +5,13 @@ import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import vn.shoestore.domain.model.Role;
 import vn.shoestore.domain.model.User;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -18,7 +21,14 @@ public class CustomUserDetails implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
+    List<Role> roles = user.getRoles();
+    if (roles.isEmpty()) return Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
+
+    List<GrantedAuthority> authorities = new ArrayList<>();
+    for (Role role : roles) {
+      authorities.add(new SimpleGrantedAuthority(role.getName()));
+    }
+    return authorities;
   }
 
   @Override
