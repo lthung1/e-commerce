@@ -32,8 +32,7 @@ public class WebSecurityConfig {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
-        .headers(
-            header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+        .headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
         .cors(
             cors ->
                 cors.configurationSource(
@@ -55,6 +54,10 @@ public class WebSecurityConfig {
                     .requestMatchers("/open-api/**")
                     .permitAll()
                     .requestMatchers("/auth/**")
+                    .permitAll()
+                    .requestMatchers("/swagger-ui/**")
+                    .permitAll()
+                    .requestMatchers("/v3/api-docs/**")
                     .permitAll())
         .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     return http.build();
