@@ -35,7 +35,7 @@ CREATE TABLE `user_roles`
 
 create table user_refresh_token
 (
-    `id`      int NOT NULL AUTO_INCREMENT,
+    `id`            int      NOT NULL AUTO_INCREMENT,
     `user_id`       int(20) not null,
     `refresh_token` text     not null,
     `invoke`        boolean  not null default false,
@@ -44,3 +44,51 @@ create table user_refresh_token
     PRIMARY KEY (`id`),
     KEY             `idx_user_id_invoke` (`user_id` , invoke) USING BTREE
 )ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+create table brands
+(
+    `id`   int         not null auto_increment,
+    `name` varchar(50) not null default '',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE categories
+(
+    `id`   smallint    not null auto_increment,
+    `name` varchar(50) not null default '',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+
+
+CREATE TABLE product_categories
+(
+    `id`          int      not null auto_increment,
+    `product_id`  int      not null DEFAULT '0',
+    `category_id` smallint not null DEFAULT '0',
+    PRIMARY KEY (`id`),
+    KEY           `idx_product` (product_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+
+CREATE TABLE products
+(
+    `id`            int          not null auto_increment,
+    `code`          varchar(20)  not null default '',
+    `name`          varchar(256) not null default '',
+    `description`   text,
+    `price`         int          not null default '0',
+    `thumbnail_img` text,
+    `created_date`  datetime              DEFAULT CURRENT_TIMESTAMP,
+    `updated_date`  datetime              DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY             `idx_product` (code)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
