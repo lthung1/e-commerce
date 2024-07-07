@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,10 +27,6 @@ public class User {
   private String lastName;
 
   @Builder.Default private Boolean active = true;
-
-  private LocalDateTime createdDate;
-
-  private LocalDateTime updatedDate;
 
   @Builder.Default List<Role> roles = new ArrayList<>();
 }

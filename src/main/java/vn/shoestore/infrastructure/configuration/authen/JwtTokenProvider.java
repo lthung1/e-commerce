@@ -8,6 +8,7 @@ import vn.shoestore.domain.model.User;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -20,11 +21,25 @@ public class JwtTokenProvider {
   @Value("${vn.shoe_store.secret.jwt_expiration_ms}")
   private int jwtExpirationMs;
 
-  public String generateJwtToken(User user) {
+  @Value("${vn.shoe_store.secret.refresh_token_expiration_ms}")
+  private int refreshTokenExpirationMs;
+
+  public String generateJwtToken(User user, Map<String, Object> map) {
     return Jwts.builder()
         .setSubject(user.getUsername())
+        .setClaims(map)
         .setIssuedAt(new Date())
         .setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
+        .signWith(SignatureAlgorithm.HS256, jwtSecret.getBytes(StandardCharsets.UTF_8))
+        .compact();
+  }
+
+  public String generateRefreshToken(User user, Map<String, Object> map) {
+    return Jwts.builder()
+        .setSubject(user.getUsername())
+        .setClaims(map)
+        .setIssuedAt(new Date())
+        .setExpiration(new Date(new Date().getTime() + refreshTokenExpirationMs))
         .signWith(SignatureAlgorithm.HS256, jwtSecret.getBytes(StandardCharsets.UTF_8))
         .compact();
   }
@@ -48,19 +63,9 @@ public class JwtTokenProvider {
     return false;
   }
 
-  public String getAccessTokenFromJwtToken(String jwt) {
-    Claims c =
-        (Claims)
-            Jwts.parserBuilder()
-                .setSigningKey(jwtSecret.getBytes(StandardCharsets.UTF_8))
-                .build()
-                .parse(jwt)
-                .getBody();
-    return (String) c.get(ACCESS_TOKEN_CLAIM);
-  }
-
   public String getUsernameByToken(String token) {
-    Claims claims = Jwts.parser().setSigningKey(jwtSecret.getBytes()).parseClaimsJws(token).getBody();
-    return claims.getSubject();
+    Claims claims =
+        Jwts.parser().setSigningKey(jwtSecret.getBytes()).parseClaimsJws(token).getBody();
+    return claims.get("username").toString();
   }
 }
