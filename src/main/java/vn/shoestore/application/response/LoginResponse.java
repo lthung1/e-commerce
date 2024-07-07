@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vn.shoestore.domain.model.User;
 
 import java.time.LocalDateTime;
 
@@ -18,4 +19,5 @@ public class LoginResponse {
   private String accessToken;
   private LocalDateTime expiresIn;
   private String refreshToken;
+  private User userInfo;
 }

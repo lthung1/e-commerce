@@ -70,6 +70,7 @@ public class LoginRefreshTokenUseCaseImpl implements ILoginRefreshTokenUseCase {
                 tokenUser, ObjectUtils.convertUsingReflection(tokenUser)))
         .refreshToken(request.getToken())
         .expiresIn(LocalDateTime.now().plusSeconds(jwtExpirationMs / 1000))
+        .userInfo(tokenUser)
         .build();
   }
 }

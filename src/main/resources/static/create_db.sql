@@ -7,21 +7,26 @@ CREATE TABLE `users`
     `first_name`   varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci           DEFAULT NULL,
     `last_name`    varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci           DEFAULT NULL,
     `active`       tinyint(1) DEFAULT '1',
+    `phone_number` varchar(20)                                                   not null default '',
+    `address`      text                                                                   default null,
     `created_date` datetime                                                               DEFAULT CURRENT_TIMESTAMP,
     `updated_date` datetime                                                               DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `username` (`username`),
     UNIQUE KEY `email` (`email`),
     KEY            `idx_username` (`username`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE `role`
+CREATE TABLE `roles`
 (
     `id`   int                                                          NOT NULL AUTO_INCREMENT,
-    `role` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+    `name` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `role` (`role`),
-    KEY    `idx_role` (`role`) USING BTREE
+    UNIQUE KEY `name` (`name`),
+    KEY    `idx_name` (`name`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `user_roles`

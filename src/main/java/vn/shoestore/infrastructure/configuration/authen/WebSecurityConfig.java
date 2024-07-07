@@ -40,6 +40,8 @@ public class WebSecurityConfig {
                       CorsConfiguration configuration = new CorsConfiguration();
                       configuration.setAllowedMethods(List.of("*"));
                       configuration.setAllowedHeaders(List.of("*"));
+                      configuration.setAllowedOrigins(
+                          List.of("http://localhost:4200", "http://localhost:*"));
                       configuration.setAllowCredentials(true);
                       return configuration;
                     }))

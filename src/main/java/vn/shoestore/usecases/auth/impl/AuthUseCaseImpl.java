@@ -70,6 +70,7 @@ public class AuthUseCaseImpl implements IAuthUseCase {
         .accessToken(token)
         .refreshToken(refreshToken)
         .expiresIn(LocalDateTime.now().plusSeconds(jwtExpirationMs / 1000))
+        .userInfo(user)
         .build();
   }
 

@@ -36,6 +36,12 @@ public class UserEntity {
   @Column(name = "active")
   private Boolean active;
 
+  @Column(name = "address")
+  private String address;
+
+  @Column(name = "phone_number")
+  private String phoneNumber;
+
   @Column(name = "created_date", insertable = false, updatable = false)
   private LocalDateTime createdDate;
 
