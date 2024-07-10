@@ -31,7 +31,7 @@ public class UserService implements UserDetailsService {
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     User user = userAdapter.getUserByUsername(username);
-    ;
+
     if (user == null) {
       throw new UsernameNotFoundException(username);
     }
