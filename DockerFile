@@ -1,4 +1,0 @@
-FROM openjdk:17-oracle
-MAINTAINER hunglt124
-ADD target/ShoeStore-0.0.1-SNAPSHOT.jar  ShoeStore-0.0.1-SNAPSHOT.jar
-ENTRYPOINT ["java","-jar","ShoeStore-0.0.1-SNAPSHOT.jar"]
