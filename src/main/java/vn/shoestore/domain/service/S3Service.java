@@ -65,7 +65,6 @@ public class S3Service {
     objectMetadata.setContentType(file.getContentType());
     var putObjectRequest =
         new PutObjectRequest("", bucket + "/" + key, file.getInputStream(), objectMetadata);
-    // putObjectRequest.withCannedAcl(CannedAccessControlList.PublicRead);
     client.putObject(putObjectRequest);
     return client.getUrl(bucket, key).toString();
   }

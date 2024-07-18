@@ -17,5 +17,6 @@ import java.util.List;
 public interface IFileController {
 
   @PostMapping(value = "upload-file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  ResponseEntity<BaseResponse<List<String>>> upload(@RequestPart("files[]") MultipartFile[] files) throws IOException;
+  ResponseEntity<BaseResponse<List<String>>> upload(@RequestPart("files[]") MultipartFile[] files)
+      throws IOException;
 }

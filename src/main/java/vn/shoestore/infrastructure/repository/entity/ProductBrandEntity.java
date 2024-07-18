@@ -6,22 +6,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "categories")
+@Table(name = "product_brands")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryEntity {
+public class ProductBrandEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
   private Long id;
 
-  @Column(name = "name")
-  private String name;
+  @Column(name = "product_id")
+  private Long productId;
 
-  @Column(name = "router_link")
-  private String routerLink;
-
-  @Column(name = "image")
-  private String image;
+  @Column(name = "brand_id")
+  private Long brandId;
 }
