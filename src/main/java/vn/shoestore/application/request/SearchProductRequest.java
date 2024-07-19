@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -30,4 +31,15 @@ public class SearchProductRequest {
   @Builder.Default private Integer page = 1;
 
   @Builder.Default private Integer size = 10;
+
+  public List<Integer> getBrands() {
+    if (brands == null) return Collections.emptyList();
+    return brands;
+  }
+
+  public List<Integer> getCategories() {
+    if (categories == null) return Collections.emptyList();
+    return categories;
+  }
+
 }

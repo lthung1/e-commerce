@@ -19,5 +19,5 @@ import java.util.List;
 public class SearchProductResponse {
   @Builder.Default private Long total = 0L;
 
-  @Builder.Default private List<Product> data = new ArrayList<>();
+  @Builder.Default private List<ProductResponse> data = new ArrayList<>();
 }

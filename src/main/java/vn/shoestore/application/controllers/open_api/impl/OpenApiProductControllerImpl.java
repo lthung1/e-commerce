@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import vn.shoestore.application.controllers.open_api.IOpenApiProductController;
 import vn.shoestore.application.request.SearchProductRequest;
 import vn.shoestore.application.response.BaseResponse;
+import vn.shoestore.application.response.ProductResponse;
 import vn.shoestore.application.response.SearchProductResponse;
 import vn.shoestore.domain.adapter.BrandAdapter;
 import vn.shoestore.domain.adapter.CategoryAdapter;
@@ -38,5 +39,10 @@ public class OpenApiProductControllerImpl implements IOpenApiProductController {
   public ResponseEntity<BaseResponse<SearchProductResponse>> searchProducts(
       SearchProductRequest request) {
     return ResponseFactory.success(iGetProductUseCase.searchProduct(request));
+  }
+
+  @Override
+  public ResponseEntity<BaseResponse<ProductResponse>> findOne(Long id) {
+    return ResponseFactory.success(iGetProductUseCase.findOne(id));
   }
 }

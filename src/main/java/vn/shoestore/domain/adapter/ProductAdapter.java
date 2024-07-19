@@ -6,8 +6,9 @@ import vn.shoestore.domain.model.Product;
 
 public interface ProductAdapter {
   Page<Product> getProductByCondition(SearchProductRequest request);
-
   Product save(Product product);
 
   Product getProductById(Long id);
+
+  void delete(Long id);
 }

@@ -41,4 +41,9 @@ public class ProductAdapterImpl implements ProductAdapter {
         .map(productEntity -> ModelMapperUtils.mapper(productEntity, Product.class))
         .orElse(null);
   }
+
+  @Override
+  public void delete(Long id) {
+    productRepository.deleteById(id);
+  }
 }

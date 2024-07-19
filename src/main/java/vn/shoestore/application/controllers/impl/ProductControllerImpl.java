@@ -19,4 +19,10 @@ public class ProductControllerImpl implements IProductController {
     iProductUseCase.createOrUpdateProduct(request);
     return ResponseFactory.success();
   }
+
+  @Override
+  public ResponseEntity<BaseResponse> deleteProduct(Long id) {
+    iProductUseCase.deleteProduct(id);
+    return ResponseFactory.success();
+  }
 }

@@ -4,18 +4,21 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class LoginRequest {
-  @NotNull(message = "username cannot be null")
-  private String username;
+public class CategoryRequest {
+  private Long id;
 
-  @NotNull(message = "password cannot be null")
-  private String password;
+  @NotNull(message = "name không được để rỗng")
+  private String name;
+
+  private String routerLink;
+  private String image;
 }

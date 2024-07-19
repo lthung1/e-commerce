@@ -33,6 +33,11 @@ public class ProductUseCaseImpl implements IProductUseCase {
     } else create(request);
   }
 
+  @Override
+  public void deleteProduct(Long id) {
+
+  }
+
   private void create(ProductRequest request) {
     Product product =
         Product.builder()

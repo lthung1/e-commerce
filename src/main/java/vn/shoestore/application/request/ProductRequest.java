@@ -6,10 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import vn.shoestore.domain.model.Brand;
-import vn.shoestore.domain.model.Category;
-import vn.shoestore.domain.model.ProductAttachment;
-
 import java.util.ArrayList;
 import java.util.List;
 
