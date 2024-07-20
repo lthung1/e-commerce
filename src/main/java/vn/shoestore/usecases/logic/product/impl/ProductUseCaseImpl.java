@@ -4,16 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import vn.shoestore.application.request.ProductRequest;
 import vn.shoestore.domain.adapter.*;
-import vn.shoestore.domain.model.Product;
-import vn.shoestore.domain.model.ProductAttachment;
-import vn.shoestore.domain.model.ProductBrand;
-import vn.shoestore.domain.model.ProductCategory;
+import vn.shoestore.domain.model.*;
 import vn.shoestore.shared.anotation.UseCase;
 import vn.shoestore.shared.exceptions.InputNotValidException;
+import vn.shoestore.shared.utils.ListUtils;
 import vn.shoestore.shared.utils.ModelTransformUtils;
 import vn.shoestore.usecases.logic.product.IProductUseCase;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static vn.shoestore.shared.constants.ExceptionMessage.PRODUCT_NOT_FOUND;
 
@@ -24,6 +23,7 @@ public class ProductUseCaseImpl implements IProductUseCase {
   private final ProductAttachmentAdapter productAttachmentAdapter;
   private final ProductCategoryAdapter productCategoryAdapter;
   private final ProductBrandAdapter productBrandAdapter;
+  private final ProductPropertiesAdapter productPropertiesAdapter;
 
   @Override
   @Transactional
@@ -50,6 +50,7 @@ public class ProductUseCaseImpl implements IProductUseCase {
     Product savedProduct = productAdapter.save(product);
 
     processSave(request, savedProduct);
+    saveNewProperties(request.getSizes(), savedProduct.getId());
   }
 
   private void processSave(ProductRequest request, Product savedProduct) {
@@ -124,5 +125,59 @@ public class ProductUseCaseImpl implements IProductUseCase {
     productAdapter.save(product);
     processDelete(product.getId());
     processSave(request, product);
+    savePropertiesForUpdate(request);
+  }
+
+  private void saveNewProperties(List<Integer> sizes, Long productId) {
+    if (sizes.isEmpty()) return;
+    List<ProductProperties> productProperties = new ArrayList<>();
+    sizes = sizes.stream().distinct().collect(Collectors.toList());
+    for (Integer size : sizes) {
+      productProperties.add(
+          ProductProperties.builder().productId(productId).size(size).isAble(true).build());
+    }
+    productPropertiesAdapter.saveAll(productProperties);
+  }
+
+  private void savePropertiesForUpdate(ProductRequest request) {
+    Long id = request.getId();
+    List<Integer> sizes = request.getSizes().stream().distinct().collect(Collectors.toList());
+
+    List<ProductProperties> productProperties =
+        productPropertiesAdapter.getAllByProductIdInAndIsAble(Collections.singletonList(id), true);
+
+    List<Integer> existSizes =
+        ModelTransformUtils.getAttribute(productProperties, ProductProperties::getSize);
+    List<Integer> deletedSizes = ListUtils.diff(existSizes, sizes);
+    List<Integer> newSizes = ListUtils.diff(sizes, existSizes);
+    disableProperties(productProperties, deletedSizes);
+    enableProperties(id, newSizes);
+  }
+
+  private void disableProperties(
+      List<ProductProperties> productProperties, List<Integer> deletedSizes) {
+    if (deletedSizes.isEmpty()) return;
+    List<ProductProperties> deleteProductProperties =
+        productProperties.stream().filter(e -> deletedSizes.contains(e.getSize())).toList();
+    deleteProductProperties.forEach(e -> e.setIsAble(false));
+    productPropertiesAdapter.saveAll(deleteProductProperties);
+  }
+
+  private void enableProperties(Long id, List<Integer> newSizes) {
+    if (newSizes.isEmpty()) return;
+    List<ProductProperties> productProperties =
+        productPropertiesAdapter.getAllByProductIdInAndIsAble(Collections.singletonList(id), false);
+
+    List<ProductProperties> updatedProperties =
+        productProperties.stream().filter(e -> newSizes.contains(e.getSize())).toList();
+
+    updatedProperties.forEach(e -> e.setIsAble(true));
+    productPropertiesAdapter.saveAll(updatedProperties);
+
+    List<Integer> updatedSizes =
+        ModelTransformUtils.getAttribute(updatedProperties, ProductProperties::getSize);
+
+    List<Integer> addSizes = newSizes.stream().filter(e -> !updatedSizes.contains(e)).toList();
+    saveNewProperties(addSizes, id);
   }
 }

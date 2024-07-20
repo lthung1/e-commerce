@@ -19,14 +19,15 @@ import java.util.List;
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ProductResponse {
-    private Long id;
-    private String name;
-    private String code;
-    private String description;
-    private Long price;
+  private Long id;
+  private String name;
+  private String code;
+  private String description;
+  private Long price;
 
-    private Brand brand;
+  private Brand brand;
 
-    @Builder.Default private List<Category> categories = new ArrayList<>();
-    @Builder.Default private List<ProductAttachment> attachments = new ArrayList<>();
+  @Builder.Default private List<Category> categories = new ArrayList<>();
+  @Builder.Default private List<ProductAttachment> attachments = new ArrayList<>();
+  @Builder.Default private List<Integer> sizes = new ArrayList<>();
 }

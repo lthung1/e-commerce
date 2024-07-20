@@ -30,6 +30,7 @@ public class GetProductUseCaseImpl implements IGetProductUseCase {
   private final ProductCategoryAdapter productCategoryAdapter;
   private final CategoryAdapter categoryAdapter;
   private final ProductAttachmentAdapter productAttachmentAdapter;
+  private final ProductPropertiesAdapter productPropertiesAdapter;
 
   @Override
   public SearchProductResponse searchProduct(SearchProductRequest request) {
@@ -69,6 +70,27 @@ public class GetProductUseCaseImpl implements IGetProductUseCase {
     enrichBrand(productResponses);
     enrichCategories(productResponses);
     enrichUrls(productResponses);
+    enrichSize(productResponses);
+  }
+
+  private void enrichSize(List<ProductResponse> productResponses) {
+    List<Long> productIds =
+        ModelTransformUtils.getAttribute(productResponses, ProductResponse::getId);
+
+    List<ProductProperties> productProperties =
+        productPropertiesAdapter.getAllByProductIdInAndIsAble(productIds, true);
+
+    Map<Long, List<Integer>> mapProperties =
+        productProperties.stream()
+            .collect(
+                Collectors.groupingBy(
+                    ProductProperties::getProductId,
+                    Collectors.mapping(ProductProperties::getSize, Collectors.toList())));
+
+    for (ProductResponse response : productResponses) {
+      List<Integer> sizes = mapProperties.getOrDefault(response.getId(), Collections.emptyList());
+      response.setSizes(sizes);
+    }
   }
 
   private void enrichCategories(List<ProductResponse> productResponses) {

@@ -25,4 +25,5 @@ public class ProductRequest {
 
   @Builder.Default private List<Long> categories = new ArrayList<>();
   @Builder.Default private List<String> attachments = new ArrayList<>();
+  @Builder.Default private List<Integer> sizes = new ArrayList<>();
 }
