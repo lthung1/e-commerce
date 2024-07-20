@@ -27,4 +27,9 @@ public class CategoryUseCaseImpl implements ICategoryUseCase {
   public void deleteCategory(Long id) {
     categoryAdapter.deleteById(id);
   }
+
+  @Override
+  public Category getById(Long id) {
+    return categoryAdapter.findById(id);
+  }
 }

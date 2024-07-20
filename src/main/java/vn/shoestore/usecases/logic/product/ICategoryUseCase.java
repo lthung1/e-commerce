@@ -9,4 +9,6 @@ public interface ICategoryUseCase {
   Category updateCategory(CategoryRequest request);
 
   void deleteCategory(Long id);
+
+  Category getById(Long id);
 }

@@ -12,4 +12,6 @@ public interface BrandAdapter {
   Brand createOrUpdateBrand(Brand brand);
 
   void deleteById(Long id);
+
+  Brand findById(Long id);
 }

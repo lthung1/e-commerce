@@ -6,5 +6,8 @@ import vn.shoestore.application.response.SearchProductResponse;
 
 public interface IGetProductUseCase {
   SearchProductResponse searchProduct(SearchProductRequest request);
+
   ProductResponse findOne(Long productId);
+
+  void deleteProduct(Long productId);
 }

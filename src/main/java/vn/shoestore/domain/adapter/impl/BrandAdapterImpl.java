@@ -6,9 +6,13 @@ import vn.shoestore.domain.model.Brand;
 import vn.shoestore.infrastructure.repository.entity.BrandEntity;
 import vn.shoestore.infrastructure.repository.repository.BrandRepository;
 import vn.shoestore.shared.anotation.Adapter;
+import vn.shoestore.shared.exceptions.InputNotValidException;
 import vn.shoestore.shared.utils.ModelMapperUtils;
 
 import java.util.List;
+import java.util.Optional;
+
+import static vn.shoestore.shared.constants.ExceptionMessage.BRAND_NOT_FOUND;
 
 @Adapter
 @RequiredArgsConstructor
@@ -35,5 +39,15 @@ public class BrandAdapterImpl implements BrandAdapter {
   @Override
   public void deleteById(Long id) {
     brandRepository.deleteById(id);
+  }
+
+  @Override
+  public Brand findById(Long id) {
+    Optional<BrandEntity> optionalBrandEntity = brandRepository.findById(id);
+    if (optionalBrandEntity.isEmpty()) {
+      throw new InputNotValidException(BRAND_NOT_FOUND);
+    }
+
+    return ModelMapperUtils.mapper(optionalBrandEntity.get(), Brand.class);
   }
 }

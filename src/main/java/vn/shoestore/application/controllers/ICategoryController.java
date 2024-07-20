@@ -20,4 +20,7 @@ public interface ICategoryController {
 
   @DeleteMapping("{id}")
   ResponseEntity<BaseResponse> deleteCategory(@PathVariable Long id);
+
+  @GetMapping("{id}")
+  ResponseEntity<BaseResponse<Category>> getById(@PathVariable Long id);
 }

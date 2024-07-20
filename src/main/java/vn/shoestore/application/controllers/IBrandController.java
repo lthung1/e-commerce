@@ -19,4 +19,7 @@ public interface IBrandController {
 
   @DeleteMapping("{id}")
   ResponseEntity<BaseResponse> deleteBrand(@PathVariable Long id);
+
+  @GetMapping("{id}")
+  ResponseEntity<BaseResponse<Brand>> getById(@PathVariable Long id);
 }

@@ -27,4 +27,9 @@ public class BrandUseCaseImpl implements IBrandUseCase {
   public void deleteBrand(Long id) {
     brandAdapter.deleteById(id);
   }
+
+  @Override
+  public Brand getById(Long id) {
+    return brandAdapter.findById(id);
+  }
 }

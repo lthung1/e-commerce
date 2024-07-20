@@ -9,4 +9,6 @@ public interface IBrandUseCase {
   Brand updateBrand(BrandRequest request);
 
   void deleteBrand(Long id);
+
+  Brand getById(Long id);
 }

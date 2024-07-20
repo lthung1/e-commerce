@@ -31,4 +31,9 @@ public class CategoryControllerImpl implements ICategoryController {
     iCategoryUseCase.deleteCategory(id);
     return ResponseFactory.success();
   }
+
+  @Override
+  public ResponseEntity<BaseResponse<Category>> getById(Long id) {
+    return ResponseFactory.success(iCategoryUseCase.getById(id));
+  }
 }

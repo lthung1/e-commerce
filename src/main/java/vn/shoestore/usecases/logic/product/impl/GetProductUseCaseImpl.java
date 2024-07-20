@@ -33,10 +33,12 @@ public class GetProductUseCaseImpl implements IGetProductUseCase {
 
   @Override
   public SearchProductResponse searchProduct(SearchProductRequest request) {
-    Page<Product> productPage = productAdapter.getProductByCondition(request);
+    Page<Long> productPage = productAdapter.getProductByCondition(request);
     if (productPage.isEmpty()) return SearchProductResponse.builder().build();
 
-    List<Product> products = productPage.getContent();
+    List<Long> productIds = productPage.getContent();
+    List<Product> products = productAdapter.findAllByIds(productIds);
+
     List<ProductResponse> productResponses =
         ModelMapperUtils.mapList(products, ProductResponse.class);
     enrichInfo(productResponses);
@@ -56,6 +58,11 @@ public class GetProductUseCaseImpl implements IGetProductUseCase {
     ProductResponse productResponse = ModelMapperUtils.mapper(product, ProductResponse.class);
     enrichInfo(Collections.singletonList(productResponse));
     return productResponse;
+  }
+
+  @Override
+  public void deleteProduct(Long productId) {
+    productAdapter.delete(productId);
   }
 
   private void enrichInfo(List<ProductResponse> productResponses) {

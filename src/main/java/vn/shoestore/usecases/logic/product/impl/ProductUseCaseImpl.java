@@ -35,7 +35,7 @@ public class ProductUseCaseImpl implements IProductUseCase {
 
   @Override
   public void deleteProduct(Long id) {
-
+    productAdapter.delete(id);
   }
 
   private void create(ProductRequest request) {

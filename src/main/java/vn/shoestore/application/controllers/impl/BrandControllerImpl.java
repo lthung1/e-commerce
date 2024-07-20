@@ -31,4 +31,9 @@ public class BrandControllerImpl implements IBrandController {
     iBrandUseCase.deleteBrand(id);
     return ResponseFactory.success();
   }
+
+  @Override
+  public ResponseEntity<BaseResponse<Brand>> getById(Long id) {
+    return ResponseFactory.success(iBrandUseCase.getById(id));
+  }
 }

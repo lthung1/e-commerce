@@ -12,6 +12,7 @@ import vn.shoestore.shared.anotation.Adapter;
 import vn.shoestore.shared.utils.ModelMapperUtils;
 import vn.shoestore.shared.utils.ModelTransformUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 @Adapter
@@ -20,11 +21,9 @@ public class ProductAdapterImpl implements ProductAdapter {
   private final ProductRepository productRepository;
 
   @Override
-  public Page<Product> getProductByCondition(SearchProductRequest request) {
-    return ModelMapperUtils.mapPage(
-        productRepository.findAllByConditions(
-            request, PageRequest.of(request.getPage() - 1, request.getSize())),
-        Product.class);
+  public Page<Long> getProductByCondition(SearchProductRequest request) {
+    return productRepository.findAllByConditions(
+        request, PageRequest.of(request.getPage() - 1, request.getSize()));
   }
 
   @Override
@@ -45,5 +44,10 @@ public class ProductAdapterImpl implements ProductAdapter {
   @Override
   public void delete(Long id) {
     productRepository.deleteById(id);
+  }
+
+  @Override
+  public List<Product> findAllByIds(List<Long> ids) {
+    return ModelMapperUtils.mapList(productRepository.findAllByIdIn(ids), Product.class);
   }
 }

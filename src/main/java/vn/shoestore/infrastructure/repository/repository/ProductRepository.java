@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import vn.shoestore.application.request.SearchProductRequest;
 import vn.shoestore.infrastructure.repository.entity.ProductEntity;
 
+import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
@@ -15,7 +16,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
   @Query(
       value =
           """
-                    select p.* from products p
+                    select distinct p.id from products p
                     JOIN product_brands pb on p.id = pb.product_id
                     JOIN product_categories pc on p.id = pc.product_id
                     WHERE
@@ -28,5 +29,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
                   """,
       nativeQuery = true,
       countProjection = "p.id")
-  Page<ProductEntity> findAllByConditions(SearchProductRequest request, Pageable pageable);
+  Page<Long> findAllByConditions(SearchProductRequest request, Pageable pageable);
+
+  List<ProductEntity> findAllByIdIn(List<Long> ids);
 }

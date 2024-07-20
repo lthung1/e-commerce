@@ -6,9 +6,13 @@ import vn.shoestore.domain.model.Category;
 import vn.shoestore.infrastructure.repository.entity.CategoryEntity;
 import vn.shoestore.infrastructure.repository.repository.CategoryRepository;
 import vn.shoestore.shared.anotation.Adapter;
+import vn.shoestore.shared.exceptions.InputNotValidException;
 import vn.shoestore.shared.utils.ModelMapperUtils;
 
 import java.util.List;
+import java.util.Optional;
+
+import static vn.shoestore.shared.constants.ExceptionMessage.CATEGORY_NOT_FOUND;
 
 @Adapter
 @RequiredArgsConstructor
@@ -35,5 +39,14 @@ public class CategoryAdapterImpl implements CategoryAdapter {
   @Override
   public void deleteById(Long id) {
     categoryRepository.deleteById(id);
+  }
+
+  @Override
+  public Category findById(Long id) {
+    Optional<CategoryEntity> optionalCategoryEntity = categoryRepository.findById(id);
+    if (optionalCategoryEntity.isEmpty()) {
+      throw new InputNotValidException(CATEGORY_NOT_FOUND);
+    }
+    return ModelMapperUtils.mapper(optionalCategoryEntity.get(), Category.class);
   }
 }

@@ -12,4 +12,6 @@ public interface CategoryAdapter {
   Category createOrUpdateCategory(Category category);
 
   void deleteById(Long id);
+
+  Category findById(Long id);
 }
