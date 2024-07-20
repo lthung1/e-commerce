@@ -10,11 +10,11 @@ import vn.shoestore.domain.model.Category;
 @RestController
 @RequestMapping("/api/v1/category")
 public interface ICategoryController {
-  @PostMapping("/")
+  @PostMapping
   ResponseEntity<BaseResponse<Category>> createCategory(
       @RequestBody @Valid CategoryRequest request);
 
-  @PutMapping("/")
+  @PutMapping
   ResponseEntity<BaseResponse<Category>> updateCategory(
       @RequestBody @Valid CategoryRequest request);
 

@@ -11,10 +11,10 @@ import vn.shoestore.domain.model.Brand;
 @RequestMapping("/api/v1/brand")
 public interface IBrandController {
 
-  @PostMapping("/")
+  @PostMapping()
   ResponseEntity<BaseResponse<Brand>> createBrand(@RequestBody @Valid BrandRequest request);
 
-  @PutMapping("/")
+  @PutMapping()
   ResponseEntity<BaseResponse<Brand>> updateBrand(@RequestBody @Valid BrandRequest request);
 
   @DeleteMapping("{id}")

@@ -24,9 +24,8 @@ public class SearchProductRequest {
 
   @Builder.Default private List<Integer> categories = new ArrayList<>();
 
-  @Builder.Default private Integer minCost = 0;
-
-  @Builder.Default private Integer maxCost = 0;
+  private Integer minCost;
+  private Integer maxCost;
 
   @Builder.Default private Integer page = 1;
 
@@ -41,5 +40,4 @@ public class SearchProductRequest {
     if (categories == null) return Collections.emptyList();
     return categories;
   }
-
 }
