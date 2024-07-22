@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vn.shoestore.domain.model.Category;
+import vn.shoestore.domain.model.ProductAttachment;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +26,7 @@ public class ProductRequest {
 
   private Long brandId;
 
-  @Builder.Default private List<Long> categories = new ArrayList<>();
-  @Builder.Default private List<String> attachments = new ArrayList<>();
+  @Builder.Default private List<Category> categories = new ArrayList<>();
+  @Builder.Default private List<ProductAttachment> images = new ArrayList<>();
   @Builder.Default private List<Integer> sizes = new ArrayList<>();
 }

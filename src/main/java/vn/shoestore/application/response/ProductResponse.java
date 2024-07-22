@@ -24,10 +24,12 @@ public class ProductResponse {
   private String code;
   private String description;
   private Long price;
-
+  @Builder.Default
+  private Boolean isPromotion = false;
+  private Double promotionPrice;
   private Brand brand;
 
   @Builder.Default private List<Category> categories = new ArrayList<>();
-  @Builder.Default private List<ProductAttachment> attachments = new ArrayList<>();
+  @Builder.Default private List<ProductAttachment> images = new ArrayList<>();
   @Builder.Default private List<Integer> sizes = new ArrayList<>();
 }

@@ -7,14 +7,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class Brand {
+public class ProductPromotion {
   private Long id;
-  private String name;
-  private String phoneNumber;
-  private String address;
+  private Long productId;
+  private Long promotionId;
+  private LocalDateTime createdDate;
 }

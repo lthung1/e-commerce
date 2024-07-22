@@ -13,6 +13,7 @@ import vn.shoestore.shared.utils.ModelMapperUtils;
 import vn.shoestore.shared.utils.ModelTransformUtils;
 import vn.shoestore.usecases.logic.product.IGetProductUseCase;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ public class GetProductUseCaseImpl implements IGetProductUseCase {
   private final CategoryAdapter categoryAdapter;
   private final ProductAttachmentAdapter productAttachmentAdapter;
   private final ProductPropertiesAdapter productPropertiesAdapter;
+  private final ProductPromotionAdapter productPromotionAdapter;
 
   @Override
   public SearchProductResponse searchProduct(SearchProductRequest request) {
@@ -61,16 +63,49 @@ public class GetProductUseCaseImpl implements IGetProductUseCase {
     return productResponse;
   }
 
-  @Override
-  public void deleteProduct(Long productId) {
-    productAdapter.delete(productId);
-  }
-
   private void enrichInfo(List<ProductResponse> productResponses) {
     enrichBrand(productResponses);
     enrichCategories(productResponses);
     enrichUrls(productResponses);
     enrichSize(productResponses);
+    enrichPromotion(productResponses);
+  }
+
+  private void enrichPromotion(List<ProductResponse> productResponses) {
+    List<Long> productIds =
+        ModelTransformUtils.getAttribute(productResponses, ProductResponse::getId);
+
+    List<ProductPromotion> productPromotions =
+        productPromotionAdapter.getProductPromotionByProductIds(productIds);
+
+    List<Long> promotionIds =
+        productPromotions.stream().map(ProductPromotion::getPromotionId).distinct().toList();
+
+    List<Promotion> allPromotions = productPromotionAdapter.getPromotionByIds(promotionIds);
+    Map<Long, List<Long>> mapProductIdWithPromotions =
+        productPromotions.stream()
+            .collect(
+                Collectors.groupingBy(
+                    ProductPromotion::getProductId,
+                    Collectors.mapping(ProductPromotion::getPromotionId, Collectors.toList())));
+    LocalDateTime now = LocalDateTime.now();
+    for (ProductResponse response : productResponses) {
+      List<Long> responsePromoId =
+          mapProductIdWithPromotions.getOrDefault(response.getId(), Collections.emptyList());
+      List<Promotion> promotions =
+          allPromotions.stream().filter(e -> responsePromoId.contains(e.getId())).toList();
+      if (promotions.isEmpty()) continue;
+
+      for (Promotion promotion : promotions) {
+        if (now.isAfter(promotion.getEndDate()) || now.isBefore(promotion.getStartDate())) continue;
+        response.setIsPromotion(true);
+        response.setPromotionPrice(
+            (double)
+                (response.getPrice()
+                    - (response.getPrice() * promotion.getPercentDiscount() / 100)));
+        break;
+      }
+    }
   }
 
   private void enrichSize(List<ProductResponse> productResponses) {
@@ -136,7 +171,7 @@ public class GetProductUseCaseImpl implements IGetProductUseCase {
     for (ProductResponse response : productResponses) {
       List<ProductAttachment> attachments =
           mapProductAttachments.getOrDefault(response.getId(), Collections.emptyList());
-      response.setAttachments(attachments);
+      response.setImages(attachments);
     }
   }
 

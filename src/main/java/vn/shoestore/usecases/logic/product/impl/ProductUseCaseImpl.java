@@ -64,8 +64,10 @@ public class ProductUseCaseImpl implements IProductUseCase {
     }
 
     if (Objects.nonNull(request.getCategories()) && !request.getCategories().isEmpty()) {
+      List<Long> categories =
+          ModelTransformUtils.getAttribute(request.getCategories(), Category::getId);
       List<ProductCategory> productCategories = new ArrayList<>();
-      for (Long categoryId : request.getCategories()) {
+      for (Long categoryId : categories) {
         productCategories.add(
             ProductCategory.builder()
                 .categoryId(categoryId)
@@ -75,9 +77,12 @@ public class ProductUseCaseImpl implements IProductUseCase {
       productCategoryAdapter.saveAll(productCategories);
     }
 
-    if (Objects.nonNull(request.getAttachments()) && !request.getAttachments().isEmpty()) {
+    if (Objects.nonNull(request.getImages()) && !request.getImages().isEmpty()) {
+      List<String> attachments =
+          ModelTransformUtils.getAttribute(
+              request.getImages(), ProductAttachment::getAttachment);
       List<ProductAttachment> productAttachments = new ArrayList<>();
-      for (String attachment : request.getAttachments()) {
+      for (String attachment : attachments) {
         productAttachments.add(
             ProductAttachment.builder()
                 .productId(savedProduct.getId())

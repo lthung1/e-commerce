@@ -1,4 +1,4 @@
-package vn.shoestore.domain.model;
+package vn.shoestore.application.response;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -6,15 +6,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vn.shoestore.domain.model.Promotion;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class Brand {
-  private Long id;
-  private String name;
-  private String phoneNumber;
-  private String address;
+@Builder
+public class FindProductResponse {
+  @Builder.Default private Long total = 0L;
+  @Builder.Default private List<Promotion> data = new ArrayList<>();
 }
