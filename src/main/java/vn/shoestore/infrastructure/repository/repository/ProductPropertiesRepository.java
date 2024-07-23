@@ -10,4 +10,7 @@ import java.util.List;
 public interface ProductPropertiesRepository extends JpaRepository<ProductPropertiesEntity, Long> {
   List<ProductPropertiesEntity> findAllByProductIdInAndIsAble(
       List<Long> productIds, Boolean isAble);
+
+  List<ProductPropertiesEntity> findAllByProductIdInAndSizeInAndIsAble(
+      List<Long> productIds, List<Integer> sizes, Boolean isAble);
 }

@@ -22,9 +22,19 @@ public class ProductPropertiesAdapterImpl implements ProductPropertiesAdapter {
   }
 
   @Override
-  public List<ProductProperties> getAllByProductIdInAndIsAble(List<Long> productIds, Boolean isAble) {
+  public List<ProductProperties> getAllByProductIdInAndIsAble(
+      List<Long> productIds, Boolean isAble) {
     return ModelMapperUtils.mapList(
         productPropertiesRepository.findAllByProductIdInAndIsAble(productIds, isAble),
+        ProductProperties.class);
+  }
+
+  @Override
+  public List<ProductProperties> findAllByProductIdInAndSizeInAndIsAble(
+      List<Long> productIds, List<Integer> sizes, Boolean isAble) {
+    return ModelMapperUtils.mapList(
+        productPropertiesRepository.findAllByProductIdInAndSizeInAndIsAble(
+            productIds, sizes, isAble),
         ProductProperties.class);
   }
 }

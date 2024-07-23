@@ -11,4 +11,6 @@ public final class ExceptionMessage {
   public static final String BRAND_NOT_FOUND = "Không tìm được thông tin thương hiệu";
   public static final String PROMOTION_NOT_FOUND = "Không tìm được thông tin chương trình khuyến mãi";
   public static final String PRODUCT_IS_HAS_PROMOTION = "Sản phẩm %d đang có chương trình khuyến mãi";
+  public static final String TICKET_NOT_FOUND = "Không tìm thấy thông tin phiếu nhập";
+  public static final String TICKET_STATUS_NOT_FOUND = "Trạng thái phiếu nhập không hợp lệ";
 }

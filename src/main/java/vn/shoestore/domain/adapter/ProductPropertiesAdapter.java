@@ -8,4 +8,8 @@ public interface ProductPropertiesAdapter {
   void saveAll(List<ProductProperties> productProperties);
 
   List<ProductProperties> getAllByProductIdInAndIsAble(List<Long> productIds, Boolean isAble);
+
+  List<ProductProperties> findAllByProductIdInAndSizeInAndIsAble(
+      List<Long> productIds, List<Integer> sizes, Boolean isAble);
+
 }
