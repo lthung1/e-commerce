@@ -136,7 +136,7 @@ public class GetProductUseCaseImpl implements IGetProductUseCase {
         productCategoryAdapter.findAllByProductIds(productIds);
 
     List<Long> categoryIds =
-        ModelTransformUtils.getAttribute(productCategories, ProductCategory::getId);
+        ModelTransformUtils.getAttribute(productCategories, ProductCategory::getCategoryId);
 
     List<Category> categories = categoryAdapter.findAllByIdIn(categoryIds);
 

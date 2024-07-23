@@ -16,9 +16,9 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
   @Query(
       value =
           """
-                    select distinct p.id from products p
-                    JOIN product_brands pb on p.id = pb.product_id
-                    JOIN product_categories pc on p.id = pc.product_id
+                  select distinct p.id from products p
+                    LEFT JOIN product_brands pb on p.id = pb.product_id
+                    LEFT JOIN product_categories pc on p.id = pc.product_id
                     WHERE
                         (:#{#request.getName()} is null or p.name like concat('%' , :#{#request.getName()}, '%'))
                         AND (:#{#request.getCode()} is null  or p.code like concat('%' , :#{#request.getCode()} , '%'))
