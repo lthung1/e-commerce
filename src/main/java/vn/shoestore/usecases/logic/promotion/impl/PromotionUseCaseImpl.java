@@ -39,7 +39,7 @@ public class PromotionUseCaseImpl implements IPromotionUseCase {
     Promotion savedPromotion = productPromotionAdapter.savePromotion(promotion);
 
     if (Objects.nonNull(request.getId())) {
-      deletePromotion(savedPromotion.getId());
+      deleteProductPromotion(savedPromotion.getId());
     }
 
     List<Long> productIds = request.getProductIds();
@@ -94,6 +94,10 @@ public class PromotionUseCaseImpl implements IPromotionUseCase {
   @Override
   public void deletePromotion(Long promotion) {
     productPromotionAdapter.deletePromotion(promotion);
+    deleteProductPromotion(promotion);
+  }
+
+  private void deleteProductPromotion(Long promotion) {
     List<ProductPromotion> productPromotions =
         productPromotionAdapter.findAllByPromotionId(promotion);
 
