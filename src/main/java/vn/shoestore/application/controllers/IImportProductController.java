@@ -2,10 +2,8 @@ package vn.shoestore.application.controllers;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import vn.shoestore.application.request.ConfirmImportTicketRequest;
 import vn.shoestore.application.request.ImportProductRequest;
 import vn.shoestore.application.response.BaseResponse;
 
@@ -14,4 +12,11 @@ import vn.shoestore.application.response.BaseResponse;
 public interface IImportProductController {
   @PostMapping("/save-or-update-ticket")
   ResponseEntity<BaseResponse> saveOrUpdateTicket(@RequestBody @Valid ImportProductRequest request);
+
+  @PutMapping("/confirm")
+  ResponseEntity<BaseResponse> confirmImportTicket(
+      @RequestBody @Valid ConfirmImportTicketRequest request);
+
+  @DeleteMapping("{id}")
+  ResponseEntity<BaseResponse> deleteTicket(@PathVariable Long id);
 }

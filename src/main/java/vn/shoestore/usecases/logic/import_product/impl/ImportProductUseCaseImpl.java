@@ -3,11 +3,13 @@ package vn.shoestore.usecases.logic.import_product.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.transaction.annotation.Transactional;
+import vn.shoestore.application.request.ConfirmImportTicketRequest;
 import vn.shoestore.application.request.ImportProductRequest;
 import vn.shoestore.domain.adapter.ImportTicketAdapter;
 import vn.shoestore.domain.adapter.ProductPropertiesAdapter;
 import vn.shoestore.domain.model.ImportTicket;
 import vn.shoestore.domain.model.ImportTicketProduct;
+import vn.shoestore.domain.model.ProductAmount;
 import vn.shoestore.domain.model.ProductProperties;
 import vn.shoestore.shared.anotation.UseCase;
 import vn.shoestore.shared.dto.CustomUserDetails;
@@ -21,7 +23,8 @@ import vn.shoestore.usecases.logic.import_product.ImportProductUseCase;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import static vn.shoestore.shared.constants.ExceptionMessage.TICKET_STATUS_NOT_FOUND;
+
+import static vn.shoestore.shared.constants.ExceptionMessage.*;
 
 @UseCase
 @RequiredArgsConstructor
@@ -83,6 +86,38 @@ public class ImportProductUseCaseImpl implements ImportProductUseCase {
     importTicketAdapter.saveAllImportTicketProduct(products);
   }
 
+  @Override
+  @Transactional
+  public void submitImportTicket(ConfirmImportTicketRequest request) {
+    ImportTicket importTicket = importTicketAdapter.getTicketById(request.getTicketId());
+    if (Objects.equals(importTicket.getStatus(), ImportTicketEnum.DONE.getStatus())) {
+      throw new InputNotValidException(TICKET_STATUS_NOT_FOUND);
+    }
+
+    CustomUserDetails userDetails = AuthUtils.getAuthUserDetails();
+
+    importTicket.setImportUserId(userDetails.getUser().getId());
+    importTicket.setStatus(ImportTicketEnum.DONE.getStatus());
+    importTicket.setImportedTime(LocalDateTime.now());
+
+    importTicketAdapter.saveImportTicket(importTicket);
+
+    List<ImportTicketProduct> importTicketProducts =
+        importTicketAdapter.findAllByTicketIdIn(Collections.singletonList(importTicket.getId()));
+
+    saveProductAmount(importTicketProducts);
+  }
+
+  @Override
+  public void deleteImportTicket(Long importTicketId) {
+    ImportTicket importTicket = importTicketAdapter.getTicketById(importTicketId);
+    if (Objects.equals(importTicket.getStatus(), ImportTicketEnum.DONE.getStatus())) {
+      throw new InputNotValidException(TICKET_STATUS_NOT_FOUND);
+    }
+
+    importTicketAdapter.deleteTicket(importTicketId);
+  }
+
   private void deleteImportTicketProducts(Long ticketId) {
     List<ImportTicketProduct> existProducts =
         importTicketAdapter.findAllByTicketIdIn(Collections.singletonList(ticketId));
@@ -98,5 +133,34 @@ public class ImportProductUseCaseImpl implements ImportProductUseCase {
     if (Objects.equals(importTicket.getStatus(), ImportTicketEnum.DONE.getStatus())) {
       throw new InputNotValidException(TICKET_STATUS_NOT_FOUND);
     }
+  }
+
+  private void saveProductAmount(List<ImportTicketProduct> importTicketProducts) {
+    if (importTicketProducts.isEmpty()) return;
+    List<ProductAmount> productAmounts =
+        importTicketAdapter.getAllProductPropertiesIds(
+            ModelTransformUtils.getAttribute(
+                importTicketProducts, ImportTicketProduct::getProductPropertiesId));
+
+    Map<Long, ProductAmount> productAmountMap =
+        ModelTransformUtils.toMap(productAmounts, ProductAmount::getProductPropertiesId);
+
+    List<ProductAmount> savedProductAmounts = new ArrayList<>();
+    for (ImportTicketProduct importProduct : importTicketProducts) {
+      ProductAmount productAmount = productAmountMap.get(importProduct.getProductPropertiesId());
+      if (Objects.isNull(productAmount)) {
+        savedProductAmounts.add(
+            ProductAmount.builder()
+                .amount(importProduct.getAmount())
+                .productPropertiesId(importProduct.getProductPropertiesId())
+                .updatedDate(LocalDateTime.now())
+                .build());
+      } else {
+        productAmount.setAmount(productAmount.getAmount() + importProduct.getAmount());
+        productAmount.setUpdatedDate(LocalDateTime.now());
+        savedProductAmounts.add(productAmount);
+      }
+    }
+    importTicketAdapter.saveProductAmount(savedProductAmounts);
   }
 }

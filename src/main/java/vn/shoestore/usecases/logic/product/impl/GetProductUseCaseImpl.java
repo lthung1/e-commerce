@@ -8,16 +8,14 @@ import vn.shoestore.application.response.SearchProductResponse;
 import vn.shoestore.domain.adapter.*;
 import vn.shoestore.domain.model.*;
 import vn.shoestore.shared.anotation.UseCase;
+import vn.shoestore.shared.dto.SizeAmountDTO;
 import vn.shoestore.shared.exceptions.InputNotValidException;
 import vn.shoestore.shared.utils.ModelMapperUtils;
 import vn.shoestore.shared.utils.ModelTransformUtils;
 import vn.shoestore.usecases.logic.product.IGetProductUseCase;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static vn.shoestore.shared.constants.ExceptionMessage.PRODUCT_NOT_FOUND;
@@ -33,6 +31,7 @@ public class GetProductUseCaseImpl implements IGetProductUseCase {
   private final ProductAttachmentAdapter productAttachmentAdapter;
   private final ProductPropertiesAdapter productPropertiesAdapter;
   private final ProductPromotionAdapter productPromotionAdapter;
+  private final ImportTicketAdapter importTicketAdapter;
 
   @Override
   public SearchProductResponse searchProduct(SearchProductRequest request) {
@@ -115,15 +114,31 @@ public class GetProductUseCaseImpl implements IGetProductUseCase {
     List<ProductProperties> productProperties =
         productPropertiesAdapter.getAllByProductIdInAndIsAble(productIds, true);
 
-    Map<Long, List<Integer>> mapProperties =
-        productProperties.stream()
-            .collect(
-                Collectors.groupingBy(
-                    ProductProperties::getProductId,
-                    Collectors.mapping(ProductProperties::getSize, Collectors.toList())));
+    Map<Long, List<ProductProperties>> mapProperties =
+        productProperties.stream().collect(Collectors.groupingBy(ProductProperties::getProductId));
+
+    List<ProductAmount> productAmounts =
+        importTicketAdapter.getAllProductPropertiesIds(
+            ModelTransformUtils.getAttribute(productProperties, ProductProperties::getId));
+
+    Map<Long, ProductAmount> productAmountMap =
+        ModelTransformUtils.toMap(productAmounts, ProductAmount::getProductPropertiesId);
 
     for (ProductResponse response : productResponses) {
-      List<Integer> sizes = mapProperties.getOrDefault(response.getId(), Collections.emptyList());
+      List<ProductProperties> properties =
+          mapProperties.getOrDefault(response.getId(), Collections.emptyList());
+      if (properties.isEmpty()) continue;
+      List<SizeAmountDTO> sizes = new ArrayList<>();
+      for (ProductProperties prop : properties) {
+        ProductAmount productAmount = productAmountMap.get(prop.getId());
+        sizes.add(
+            SizeAmountDTO.builder()
+                .id(prop.getId())
+                .size(prop.getSize())
+                .amount(Objects.nonNull(productAmount) ? productAmount.getAmount() : 0)
+                .build());
+      }
+
       response.setSizes(sizes);
     }
   }

@@ -2,9 +2,9 @@ package vn.shoestore.domain.adapter;
 
 import vn.shoestore.domain.model.ImportTicket;
 import vn.shoestore.domain.model.ImportTicketProduct;
+import vn.shoestore.domain.model.ProductAmount;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ImportTicketAdapter {
   ImportTicket saveImportTicket(ImportTicket importTicket);
@@ -16,4 +16,10 @@ public interface ImportTicketAdapter {
   void deleteImportTicketProductByIds(List<Long> ids);
 
   ImportTicket getTicketById(Long id);
+
+  void saveProductAmount(List<ProductAmount> productAmounts);
+
+  List<ProductAmount> getAllProductPropertiesIds(List<Long> productPropertiesIds);
+
+  void deleteTicket(Long ticketId);
 }

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import vn.shoestore.domain.model.Brand;
 import vn.shoestore.domain.model.Category;
 import vn.shoestore.domain.model.ProductAttachment;
+import vn.shoestore.shared.dto.SizeAmountDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,5 +32,5 @@ public class ProductResponse {
 
   @Builder.Default private List<Category> categories = new ArrayList<>();
   @Builder.Default private List<ProductAttachment> images = new ArrayList<>();
-  @Builder.Default private List<Integer> sizes = new ArrayList<>();
+  @Builder.Default private List<SizeAmountDTO> sizes = new ArrayList<>();
 }
