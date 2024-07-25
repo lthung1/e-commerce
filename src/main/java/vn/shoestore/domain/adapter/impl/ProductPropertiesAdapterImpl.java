@@ -37,4 +37,10 @@ public class ProductPropertiesAdapterImpl implements ProductPropertiesAdapter {
             productIds, sizes, isAble),
         ProductProperties.class);
   }
+
+  @Override
+  public List<ProductProperties> findAllIdIn(List<Long> ids) {
+    return ModelMapperUtils.mapList(
+        productPropertiesRepository.findAllByIdIn(ids), ProductProperties.class);
+  }
 }

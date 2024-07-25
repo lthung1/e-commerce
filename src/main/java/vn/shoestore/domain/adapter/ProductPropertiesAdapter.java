@@ -12,4 +12,6 @@ public interface ProductPropertiesAdapter {
   List<ProductProperties> findAllByProductIdInAndSizeInAndIsAble(
       List<Long> productIds, List<Integer> sizes, Boolean isAble);
 
+  List<ProductProperties> findAllIdIn(List<Long> ids);
+
 }

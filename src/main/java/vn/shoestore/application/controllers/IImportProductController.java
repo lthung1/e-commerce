@@ -4,8 +4,11 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.shoestore.application.request.ConfirmImportTicketRequest;
+import vn.shoestore.application.request.GetTicketRequest;
 import vn.shoestore.application.request.ImportProductRequest;
 import vn.shoestore.application.response.BaseResponse;
+import vn.shoestore.application.response.GetAllTicketResponse;
+import vn.shoestore.application.response.ImportTicketResponse;
 
 @RestController
 @RequestMapping("/api/v1/import/")
@@ -19,4 +22,11 @@ public interface IImportProductController {
 
   @DeleteMapping("{id}")
   ResponseEntity<BaseResponse> deleteTicket(@PathVariable Long id);
+
+  @PostMapping("get-all")
+  ResponseEntity<BaseResponse<GetAllTicketResponse>> findByConditions(
+      @RequestBody GetTicketRequest request);
+
+  @GetMapping("/get-by-id/{id}")
+  ResponseEntity<BaseResponse<ImportTicketResponse>> getById(@PathVariable Long id);
 }

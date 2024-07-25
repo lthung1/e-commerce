@@ -35,4 +35,7 @@ public class ImportTicketEntity {
 
   @Column(name = "imported_time")
   private LocalDateTime importedTime;
+
+  @Column(name = "imported_user_id")
+  private Long importUserId;
 }

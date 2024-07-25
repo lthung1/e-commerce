@@ -13,4 +13,6 @@ public interface ProductPropertiesRepository extends JpaRepository<ProductProper
 
   List<ProductPropertiesEntity> findAllByProductIdInAndSizeInAndIsAble(
       List<Long> productIds, List<Integer> sizes, Boolean isAble);
+
+  List<ProductPropertiesEntity> findAllByIdIn(List<Long> ids);
 }

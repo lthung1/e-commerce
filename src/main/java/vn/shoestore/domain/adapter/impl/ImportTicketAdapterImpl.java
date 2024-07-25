@@ -1,6 +1,9 @@
 package vn.shoestore.domain.adapter.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import vn.shoestore.application.request.GetTicketRequest;
 import vn.shoestore.domain.adapter.ImportTicketAdapter;
 import vn.shoestore.domain.model.ImportTicket;
 import vn.shoestore.domain.model.ImportTicketProduct;
@@ -77,5 +80,13 @@ public class ImportTicketAdapterImpl implements ImportTicketAdapter {
   @Override
   public void deleteTicket(Long ticketId) {
     importTicketRepository.deleteById(ticketId);
+  }
+
+  @Override
+  public Page<ImportTicket> findAllByConditions(GetTicketRequest request) {
+    return ModelMapperUtils.mapPage(
+        importTicketRepository.getAllByConditions(
+            PageRequest.of(request.getPage() - 1, request.getPage())),
+        ImportTicket.class);
   }
 }

@@ -2,18 +2,20 @@ package vn.shoestore.usecases.logic.import_product.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 import vn.shoestore.application.request.ConfirmImportTicketRequest;
+import vn.shoestore.application.request.GetTicketRequest;
 import vn.shoestore.application.request.ImportProductRequest;
+import vn.shoestore.application.response.GetAllTicketResponse;
 import vn.shoestore.domain.adapter.ImportTicketAdapter;
 import vn.shoestore.domain.adapter.ProductPropertiesAdapter;
-import vn.shoestore.domain.model.ImportTicket;
-import vn.shoestore.domain.model.ImportTicketProduct;
-import vn.shoestore.domain.model.ProductAmount;
-import vn.shoestore.domain.model.ProductProperties;
+import vn.shoestore.domain.adapter.UserAdapter;
+import vn.shoestore.domain.model.*;
 import vn.shoestore.shared.anotation.UseCase;
 import vn.shoestore.shared.dto.CustomUserDetails;
 import vn.shoestore.shared.dto.ProductPropertiesAmountDTO;
+import vn.shoestore.shared.dto.TicketDataDTO;
 import vn.shoestore.shared.enums.ImportTicketEnum;
 import vn.shoestore.shared.exceptions.InputNotValidException;
 import vn.shoestore.shared.utils.AuthUtils;
@@ -32,6 +34,7 @@ import static vn.shoestore.shared.constants.ExceptionMessage.*;
 public class ImportProductUseCaseImpl implements ImportProductUseCase {
   private final ImportTicketAdapter importTicketAdapter;
   private final ProductPropertiesAdapter productPropertiesAdapter;
+  private final UserAdapter userAdapter;
 
   @Override
   @Transactional
@@ -84,12 +87,20 @@ public class ImportProductUseCaseImpl implements ImportProductUseCase {
               .build());
     }
     importTicketAdapter.saveAllImportTicketProduct(products);
+
+    if (request.getIsConfirm()) {
+      confirm(savedTicket.getId());
+    }
   }
 
   @Override
   @Transactional
   public void submitImportTicket(ConfirmImportTicketRequest request) {
-    ImportTicket importTicket = importTicketAdapter.getTicketById(request.getTicketId());
+    confirm(request.getTicketId());
+  }
+
+  private void confirm(Long id) {
+    ImportTicket importTicket = importTicketAdapter.getTicketById(id);
     if (Objects.equals(importTicket.getStatus(), ImportTicketEnum.DONE.getStatus())) {
       throw new InputNotValidException(TICKET_STATUS_NOT_FOUND);
     }
@@ -116,6 +127,36 @@ public class ImportProductUseCaseImpl implements ImportProductUseCase {
     }
 
     importTicketAdapter.deleteTicket(importTicketId);
+  }
+
+  @Override
+  public GetAllTicketResponse getAllByConditions(GetTicketRequest request) {
+    Page<ImportTicket> importTicketPage = importTicketAdapter.findAllByConditions(request);
+    List<TicketDataDTO> data =
+        ModelMapperUtils.mapList(importTicketPage.getContent(), TicketDataDTO.class);
+    if (data.isEmpty()) {
+      return GetAllTicketResponse.builder().build();
+    }
+
+    List<Long> userIds =
+        ModelTransformUtils.getAttribute(data, TicketDataDTO::getImportUserId).stream()
+            .filter(Objects::nonNull)
+            .distinct()
+            .toList();
+
+    List<User> users = userAdapter.getUserByIdIn(userIds);
+    Map<Long, User> userMap = ModelTransformUtils.toMap(users, User::getId);
+
+    for (TicketDataDTO dto : data) {
+      User importUser = userMap.get(dto.getImportUserId());
+      if (Objects.isNull(importUser)) continue;
+      dto.setUsername(importUser.getUsername());
+    }
+
+    return GetAllTicketResponse.builder()
+        .total(importTicketPage.getTotalElements())
+        .data(data)
+        .build();
   }
 
   private void deleteImportTicketProducts(Long ticketId) {

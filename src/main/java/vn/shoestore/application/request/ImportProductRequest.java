@@ -28,4 +28,7 @@ public class ImportProductRequest {
   @NotNull(message = "Sản phẩm nhập không được để rỗng")
   @NotEmpty(message = "Sản phẩm nhập không được để trống")
   private List<@Valid ProductPropertiesAmountDTO> productAmounts;
+
+  @Builder.Default
+  private Boolean isConfirm = false;
 }

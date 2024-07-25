@@ -1,5 +1,7 @@
 package vn.shoestore.domain.adapter;
 
+import org.springframework.data.domain.Page;
+import vn.shoestore.application.request.GetTicketRequest;
 import vn.shoestore.domain.model.ImportTicket;
 import vn.shoestore.domain.model.ImportTicketProduct;
 import vn.shoestore.domain.model.ProductAmount;
@@ -22,4 +24,6 @@ public interface ImportTicketAdapter {
   List<ProductAmount> getAllProductPropertiesIds(List<Long> productPropertiesIds);
 
   void deleteTicket(Long ticketId);
+
+  Page<ImportTicket> findAllByConditions(GetTicketRequest request);
 }

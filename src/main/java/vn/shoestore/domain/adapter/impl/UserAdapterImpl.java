@@ -8,6 +8,7 @@ import vn.shoestore.infrastructure.repository.repository.UserRepository;
 import vn.shoestore.shared.anotation.Adapter;
 import vn.shoestore.shared.utils.ModelMapperUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 @Adapter
@@ -27,5 +28,10 @@ public class UserAdapterImpl implements UserAdapter {
   public User save(User user) {
     return ModelMapperUtils.mapper(
         userRepository.save(ModelMapperUtils.mapper(user, UserEntity.class)), User.class);
+  }
+
+  @Override
+  public List<User> getUserByIdIn(List<Long> ids) {
+    return ModelMapperUtils.mapList(userRepository.findAllByIdIn(ids), User.class);
   }
 }
