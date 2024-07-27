@@ -1,24 +1,21 @@
-package vn.shoestore.shared.dto;
-
+package vn.shoestore.domain.model;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import vn.shoestore.domain.model.Product;
 
+import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Builder
-public class ProductImportDTO {
-  private Long productId;
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+public class ProductCart {
+  private Long id;
+  private Long cartId;
   private Long productPropertiesId;
-  private Integer size;
   private Integer amount;
-  private String name;
-  private Double importCost;
-  private Product product;
+  private LocalDateTime addedDate;
 }

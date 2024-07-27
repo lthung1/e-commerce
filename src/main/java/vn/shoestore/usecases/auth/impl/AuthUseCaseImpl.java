@@ -12,6 +12,7 @@ import vn.shoestore.domain.adapter.UserAdapter;
 import vn.shoestore.domain.adapter.UserRefreshTokenAdapter;
 import vn.shoestore.domain.model.User;
 import vn.shoestore.domain.model.UserRefreshToken;
+import vn.shoestore.domain.service.UserService;
 import vn.shoestore.infrastructure.configuration.authen.JwtTokenProvider;
 import vn.shoestore.shared.anotation.UseCase;
 import vn.shoestore.shared.constants.ExceptionMessage;
@@ -22,6 +23,7 @@ import vn.shoestore.shared.utils.ObjectUtils;
 import vn.shoestore.usecases.auth.IAuthUseCase;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -41,6 +43,7 @@ public class AuthUseCaseImpl implements IAuthUseCase {
   private final PasswordEncoder passwordEncoder;
 
   private final UserRefreshTokenAdapter userRefreshTokenAdapter;
+  private final UserService userService;
 
   @Value("${vn.shoe_store.secret.jwt_expiration_ms}")
   private int jwtExpirationMs;
@@ -52,6 +55,7 @@ public class AuthUseCaseImpl implements IAuthUseCase {
   @Transactional
   public LoginResponse login(LoginRequest request) throws IllegalAccessException {
     User user = userAdapter.getUserByUsername(request.getUsername());
+    userService.enrichRole(Collections.singletonList(user));
     if (Objects.isNull(user)) {
       throw new NotAuthorizedException(ExceptionMessage.LOGIN_FAIL);
     }

@@ -101,9 +101,10 @@ public class GetImportTicketUseCaseImpl implements IGetImportTicketUseCase {
               .productPropertiesId(ticketProduct.getProductPropertiesId())
               .amount(ticketProduct.getAmount())
               .size(Objects.nonNull(properties) ? properties.getSize() : null)
-              .id(Objects.nonNull(product) ? product.getId() : null)
+              .productId(Objects.nonNull(product) ? product.getId() : null)
               .name(Objects.nonNull(product) ? product.getName() : null)
               .importCost(ticketProduct.getImportCost())
+              .product(product)
               .build());
     }
     response.setProducts(productData);
