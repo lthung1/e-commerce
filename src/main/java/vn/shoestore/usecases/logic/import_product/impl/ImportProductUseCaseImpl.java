@@ -79,7 +79,7 @@ public class ImportProductUseCaseImpl implements ImportProductUseCase {
       if (optionalProductProperties.isEmpty()) continue;
       products.add(
           ImportTicketProduct.builder()
-              .productPropertiesId(savedTicket.getId())
+              .productPropertiesId(optionalProductProperties.get().getId())
               .importCost(dto.getImportCost())
               .amount(dto.getAmount())
               .ticketId(savedTicket.getId())
