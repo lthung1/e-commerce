@@ -86,7 +86,7 @@ public class ImportTicketAdapterImpl implements ImportTicketAdapter {
   public Page<ImportTicket> findAllByConditions(GetTicketRequest request) {
     return ModelMapperUtils.mapPage(
         importTicketRepository.getAllByConditions(
-            PageRequest.of(request.getPage() - 1, request.getPage())),
+            PageRequest.of(request.getPage() - 1, request.getSize())),
         ImportTicket.class);
   }
 }
