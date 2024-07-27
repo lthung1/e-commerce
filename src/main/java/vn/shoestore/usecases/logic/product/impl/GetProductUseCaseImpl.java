@@ -62,6 +62,15 @@ public class GetProductUseCaseImpl implements IGetProductUseCase {
     return productResponse;
   }
 
+  @Override
+  public List<ProductResponse> findByIds(List<Long> ids) {
+    List<Product> products = productAdapter.findAllByIds(ids);
+    List<ProductResponse> productResponses =
+        ModelMapperUtils.mapList(products, ProductResponse.class);
+    enrichInfo(productResponses);
+    return productResponses;
+  }
+
   private void enrichInfo(List<ProductResponse> productResponses) {
     enrichBrand(productResponses);
     enrichCategories(productResponses);
@@ -98,6 +107,7 @@ public class GetProductUseCaseImpl implements IGetProductUseCase {
       for (Promotion promotion : promotions) {
         if (now.isAfter(promotion.getEndDate()) || now.isBefore(promotion.getStartDate())) continue;
         response.setIsPromotion(true);
+        response.setPercentDiscount(promotion.getPercentDiscount());
         response.setPromotionPrice(
             (double)
                 (response.getPrice()

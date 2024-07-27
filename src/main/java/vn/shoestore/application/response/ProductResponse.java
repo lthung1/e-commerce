@@ -25,10 +25,10 @@ public class ProductResponse {
   private String code;
   private String description;
   private Long price;
-  @Builder.Default
-  private Boolean isPromotion = false;
+  @Builder.Default private Boolean isPromotion = false;
   private Double promotionPrice;
   private Brand brand;
+  private Float percentDiscount;
 
   @Builder.Default private List<Category> categories = new ArrayList<>();
   @Builder.Default private List<ProductAttachment> images = new ArrayList<>();

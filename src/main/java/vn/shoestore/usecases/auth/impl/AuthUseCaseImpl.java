@@ -8,8 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.shoestore.application.request.LoginRequest;
 import vn.shoestore.application.request.RegisterRequest;
 import vn.shoestore.application.response.LoginResponse;
+import vn.shoestore.domain.adapter.CartAdapter;
 import vn.shoestore.domain.adapter.UserAdapter;
 import vn.shoestore.domain.adapter.UserRefreshTokenAdapter;
+import vn.shoestore.domain.model.Cart;
 import vn.shoestore.domain.model.User;
 import vn.shoestore.domain.model.UserRefreshToken;
 import vn.shoestore.domain.service.UserService;
@@ -45,6 +47,8 @@ public class AuthUseCaseImpl implements IAuthUseCase {
   private final UserRefreshTokenAdapter userRefreshTokenAdapter;
   private final UserService userService;
 
+  private final CartAdapter cartAdapter;
+
   @Value("${vn.shoe_store.secret.jwt_expiration_ms}")
   private int jwtExpirationMs;
 
@@ -79,6 +83,7 @@ public class AuthUseCaseImpl implements IAuthUseCase {
   }
 
   @Override
+  @Transactional
   public User register(RegisterRequest request) {
     User user = ModelMapperUtils.mapper(request, User.class);
 
@@ -88,7 +93,22 @@ public class AuthUseCaseImpl implements IAuthUseCase {
     }
 
     user.setPassword(passwordEncoder.encode(request.getPassword()));
-    return userAdapter.save(user);
+
+    User savedUser = userAdapter.save(user);
+
+    createCart(savedUser);
+    return savedUser;
+  }
+
+  private void createCart(User savedUser) {
+    Cart cart =
+        Cart.builder()
+            .userId(savedUser.getId())
+            .createdDate(LocalDateTime.now())
+            .updatedDate(LocalDateTime.now())
+            .build();
+
+    cartAdapter.save(cart);
   }
 
   private void processRefreshToken(User user, String refreshToken) {
