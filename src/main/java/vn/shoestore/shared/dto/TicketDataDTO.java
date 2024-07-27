@@ -16,8 +16,11 @@ import java.time.LocalDateTime;
 @Builder
 public class TicketDataDTO {
   private Long id;
-  private String username;
+  private String createdBy;
+  private String confirmBy;
   private Integer status;
   private Long importUserId;
+  private Long createdUserId;
   private LocalDateTime importedTime;
+  private LocalDateTime createdDate;
 }

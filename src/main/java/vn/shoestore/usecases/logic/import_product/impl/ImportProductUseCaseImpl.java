@@ -1,5 +1,9 @@
 package vn.shoestore.usecases.logic.import_product.impl;
 
+import static vn.shoestore.shared.constants.ExceptionMessage.*;
+
+import java.time.LocalDateTime;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -22,11 +26,6 @@ import vn.shoestore.shared.utils.AuthUtils;
 import vn.shoestore.shared.utils.ModelMapperUtils;
 import vn.shoestore.shared.utils.ModelTransformUtils;
 import vn.shoestore.usecases.logic.import_product.ImportProductUseCase;
-
-import java.time.LocalDateTime;
-import java.util.*;
-
-import static vn.shoestore.shared.constants.ExceptionMessage.*;
 
 @UseCase
 @RequiredArgsConstructor
@@ -139,18 +138,27 @@ public class ImportProductUseCaseImpl implements ImportProductUseCase {
     }
 
     List<Long> userIds =
-        ModelTransformUtils.getAttribute(data, TicketDataDTO::getImportUserId).stream()
-            .filter(Objects::nonNull)
-            .distinct()
-            .toList();
+        new ArrayList<>(
+            ModelTransformUtils.getAttribute(data, TicketDataDTO::getImportUserId).stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList());
+
+    userIds.addAll(ModelTransformUtils.getAttribute(data, TicketDataDTO::getCreatedUserId));
 
     List<User> users = userAdapter.getUserByIdIn(userIds);
     Map<Long, User> userMap = ModelTransformUtils.toMap(users, User::getId);
 
     for (TicketDataDTO dto : data) {
       User importUser = userMap.get(dto.getImportUserId());
+      User createdUser = userMap.get(dto.getCreatedUserId());
+
+      if (Objects.nonNull(createdUser)) {
+        dto.setCreatedBy(createdUser.getUsername());
+      }
+
       if (Objects.isNull(importUser)) continue;
-      dto.setUsername(importUser.getUsername());
+      dto.setConfirmBy(importUser.getUsername());
     }
 
     return GetAllTicketResponse.builder()
