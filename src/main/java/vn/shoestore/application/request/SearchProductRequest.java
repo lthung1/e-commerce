@@ -2,14 +2,13 @@ package vn.shoestore.application.request;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -26,6 +25,8 @@ public class SearchProductRequest {
 
   private Integer minCost;
   private Integer maxCost;
+
+  @Builder.Default private Boolean isPromoted = false;
 
   @Builder.Default private Integer page = 1;
 

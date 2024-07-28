@@ -134,6 +134,11 @@ public class BillUseCaseImpl implements IBillUseCase {
   @Override
   public BillResponseData getBillById(Long id) {
     Bill bill = billAdapter.findBillById(id);
+    CustomUserDetails customUserDetails = AuthUtils.getAuthUserDetails();
+    User user = customUserDetails.getUser();
+    if (!user.isAdmin() && !Objects.equals(user.getId(), bill.getUserId())) {
+      throw new InputNotValidException(YOU_CANNOT_VIEW_THIS_BILL);
+    }
     BillResponseData data = ModelMapperUtils.mapper(bill, BillResponseData.class);
     enrichProductBill(Collections.singletonList(data));
     return data;

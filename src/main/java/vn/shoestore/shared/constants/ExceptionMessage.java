@@ -21,4 +21,6 @@ public final class ExceptionMessage {
       "Các sản phẩm thanh toán không nằm trong giỏ hàng";
 
   public static final String BILL_NOT_FOUND = "Không tìm được hoá đơn";
+
+  public static final String YOU_CANNOT_VIEW_THIS_BILL = "Bạn không thể xem hoá đơn này";
 }
