@@ -3,6 +3,7 @@ package vn.shoestore.application.controllers;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import vn.shoestore.application.request.BuyNowRequest;
 import vn.shoestore.application.request.CreateBillRequest;
 import vn.shoestore.application.response.BaseResponse;
 
@@ -14,4 +15,8 @@ public interface IBillController {
 
   @PutMapping("confirm-purchase/{id}")
   ResponseEntity<BaseResponse> confirmPurchase(@PathVariable Long id);
+
+
+  @PostMapping("buy-now")
+  ResponseEntity<BaseResponse> buyNow(@RequestBody @Valid BuyNowRequest request);
 }

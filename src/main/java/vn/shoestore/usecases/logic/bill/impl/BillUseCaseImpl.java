@@ -3,17 +3,16 @@ package vn.shoestore.usecases.logic.bill.impl;
 import static vn.shoestore.shared.constants.ExceptionMessage.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
+import vn.shoestore.application.request.BuyNowRequest;
 import vn.shoestore.application.request.CreateBillRequest;
 import vn.shoestore.application.response.ProductResponse;
 import vn.shoestore.domain.adapter.*;
 import vn.shoestore.domain.model.*;
 import vn.shoestore.shared.anotation.UseCase;
+import vn.shoestore.shared.dto.BuyNowProductDTO;
 import vn.shoestore.shared.dto.CustomUserDetails;
 import vn.shoestore.shared.enums.BillStatusEnum;
 import vn.shoestore.shared.exceptions.InputNotValidException;
@@ -84,6 +83,29 @@ public class BillUseCaseImpl implements IBillUseCase {
     billAdapter.saveBill(bill);
   }
 
+  @Override
+  @Transactional
+  public void buyNow(BuyNowRequest request , Boolean isOnlineTransaction) {
+    List<BuyNowProductDTO> products = request.getProducts();
+
+    List<Long> productIds =
+        ModelTransformUtils.getAttribute(products, BuyNowProductDTO::getProductId);
+
+    List<Integer> sizes = ModelTransformUtils.getAttribute(products, BuyNowProductDTO::getSize);
+
+    List<ProductProperties> properties =
+        productPropertiesAdapter.findAllByProductIdInAndSizeInAndIsAble(productIds, sizes, true);
+
+    List<ProductAmount> productAmounts =
+        importTicketAdapter.getAllProductPropertiesIdsForUpdate(
+            ModelTransformUtils.getAttribute(properties, ProductProperties::getId));
+
+    validateAmountBuyNow(products, productAmounts, properties);
+
+    extractProductInStorageForBuyNow(request.getProducts(), productAmounts, properties);
+    createBillForBuyNow(request , properties , isOnlineTransaction);
+  }
+
   private void validateAmount(
       List<ProductCart> productCarts,
       List<ProductAmount> productAmounts,
@@ -115,6 +137,43 @@ public class BillUseCaseImpl implements IBillUseCase {
     }
   }
 
+  private void validateAmountBuyNow(
+      List<BuyNowProductDTO> productDTOSs,
+      List<ProductAmount> productAmounts,
+      List<ProductProperties> properties) {
+    List<Long> productIds =
+        ModelTransformUtils.getAttribute(properties, ProductProperties::getProductId);
+
+    List<Product> products = productAdapter.findAllByIds(productIds);
+    Map<Long, ProductAmount> mapProductAmount =
+        ModelTransformUtils.toMap(productAmounts, ProductAmount::getProductPropertiesId);
+
+    Map<Long, Product> mapProducts = ModelTransformUtils.toMap(products, Product::getId);
+
+    for (BuyNowProductDTO dto : productDTOSs) {
+      Optional<ProductProperties> optionalProductProperties =
+          properties.stream()
+              .filter(
+                  e ->
+                      Objects.equals(e.getSize(), dto.getSize())
+                          && Objects.equals(e.getProductId(), dto.getProductId()))
+              .findFirst();
+
+      if (optionalProductProperties.isEmpty()) {
+        throw new InputNotValidException(PRODUCT_NOT_FOUND);
+      }
+
+      ProductProperties productProperties = optionalProductProperties.get();
+      ProductAmount productAmount = mapProductAmount.get(productProperties.getId());
+      if (Objects.nonNull(productAmount) && productAmount.getAmount() >= dto.getAmount()) continue;
+      Product product = mapProducts.get(productProperties.getProductId());
+      throw new InputNotValidException(
+          String.format(
+              "Số lượng sản phẩm %s size %s không đủ . Không thể thanh tạo đơn",
+              Objects.isNull(product) ? "" : product.getName(), productProperties.getSize()));
+    }
+  }
+
   private void extractProductInStorage(
       List<ProductCart> productCarts, List<ProductAmount> productAmounts) {
     Map<Long, ProductAmount> mapProductAmount =
@@ -130,7 +189,7 @@ public class BillUseCaseImpl implements IBillUseCase {
     importTicketAdapter.saveProductAmount(productAmounts);
   }
 
-  void createBill(
+  private void createBill(
       CreateBillRequest request,
       List<ProductCart> productCarts,
       List<ProductProperties> allProductProperties,
@@ -190,5 +249,92 @@ public class BillUseCaseImpl implements IBillUseCase {
     billAdapter.saveBill(savedBill);
     cartAdapter.deleteProductCarts(
         ModelTransformUtils.getAttribute(productCarts, ProductCart::getId));
+  }
+
+  private void createBillForBuyNow(
+      BuyNowRequest request,
+      List<ProductProperties> allProductProperties,
+      Boolean isOnlineTransaction) {
+    CustomUserDetails customUserDetails = AuthUtils.getAuthUserDetails();
+    List<Long> productIds =
+        ModelTransformUtils.getAttribute(allProductProperties, ProductProperties::getProductId);
+    List<ProductResponse> productResponses = iGetProductUseCase.findByIds(productIds);
+
+    User user = customUserDetails.getUser();
+    Map<Long, ProductResponse> mapProductResponse =
+        ModelTransformUtils.toMap(productResponses, ProductResponse::getId);
+
+    Bill bill =
+        Bill.builder()
+            .createdBy(user.getId())
+            .userId(user.getId())
+            .createdDate(LocalDateTime.now())
+            .status(BillStatusEnum.CREATED.getStatus())
+            .isOnlineTransaction(isOnlineTransaction)
+            .address(request.getAddress())
+            .phoneNumber(request.getPhoneNumber())
+            .build();
+    List<ProductBill> productBills = new ArrayList<>();
+
+    Bill savedBill = billAdapter.saveBill(bill);
+
+    for (BuyNowProductDTO dto : request.getProducts()) {
+      Optional<ProductProperties> optionalProductProperties =
+          allProductProperties.stream()
+              .filter(
+                  e ->
+                      Objects.equals(e.getSize(), dto.getSize())
+                          && Objects.equals(e.getProductId(), dto.getProductId()))
+              .findFirst();
+      if (optionalProductProperties.isEmpty()) continue;
+      ProductProperties properties = optionalProductProperties.get();
+      ProductResponse productResponse = mapProductResponse.get(properties.getProductId());
+      if (productResponse == null) continue;
+      productBills.add(
+          ProductBill.builder()
+              .billId(savedBill.getId())
+              .productPropertiesId(properties.getId())
+              .amount(dto.getAmount())
+              .price(productResponse.getPrice())
+              .promotionPrice(productResponse.getPromotionPrice())
+              .promotionId(productResponse.getPromotionId())
+              .build());
+    }
+
+    Double total =
+        productBills.stream()
+            .filter(e -> Objects.nonNull(e.getTotalPrice()))
+            .mapToDouble(ProductBill::getTotalPrice)
+            .sum();
+
+    billAdapter.saveProductBill(productBills);
+
+    savedBill.setTotal(total);
+    billAdapter.saveBill(savedBill);
+  }
+
+  private void extractProductInStorageForBuyNow(
+      List<BuyNowProductDTO> productDTOSs,
+      List<ProductAmount> productAmounts,
+      List<ProductProperties> allProductProperties) {
+    Map<Long, ProductAmount> mapProductAmount =
+        ModelTransformUtils.toMap(productAmounts, ProductAmount::getProductPropertiesId);
+
+    for (BuyNowProductDTO dto : productDTOSs) {
+      Optional<ProductProperties> optionalProductProperties =
+          allProductProperties.stream()
+              .filter(
+                  e ->
+                      Objects.equals(e.getSize(), dto.getSize())
+                          && Objects.equals(e.getProductId(), dto.getProductId()))
+              .findFirst();
+      if (optionalProductProperties.isEmpty()) continue;
+      ProductAmount productAmount = mapProductAmount.get(optionalProductProperties.get().getId());
+      if (productAmount == null) continue;
+
+      productAmount.setAmount(Math.max(productAmount.getAmount() - dto.getAmount(), 0));
+    }
+
+    importTicketAdapter.saveProductAmount(productAmounts);
   }
 }
