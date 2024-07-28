@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.shoestore.application.request.AddToCartRequest;
-import vn.shoestore.application.request.DeleteProductCartRequest;
 import vn.shoestore.application.request.UpdateCartAmountRequest;
 import vn.shoestore.application.response.BaseResponse;
 import vn.shoestore.application.response.CartResponse;
@@ -18,8 +17,8 @@ public interface ICartController {
   @PostMapping("/add")
   ResponseEntity<BaseResponse> addToCard(@RequestBody @Valid AddToCartRequest request);
 
-  @DeleteMapping("/delete")
-  ResponseEntity<BaseResponse> deleteFromCart(@RequestBody @Valid DeleteProductCartRequest request);
+  @DeleteMapping("/delete/{id}")
+  ResponseEntity<BaseResponse> deleteFromCart(@PathVariable Long id);
 
   @PutMapping("/update")
   ResponseEntity<BaseResponse> updateAmount(@RequestBody @Valid UpdateCartAmountRequest request);

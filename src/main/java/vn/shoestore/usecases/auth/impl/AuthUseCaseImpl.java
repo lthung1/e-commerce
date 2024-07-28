@@ -1,5 +1,12 @@
 package vn.shoestore.usecases.auth.impl;
 
+import static vn.shoestore.shared.constants.ExceptionMessage.INVALID_PASSWORD;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,15 +30,6 @@ import vn.shoestore.shared.exceptions.NotAuthorizedException;
 import vn.shoestore.shared.utils.ModelMapperUtils;
 import vn.shoestore.shared.utils.ObjectUtils;
 import vn.shoestore.usecases.auth.IAuthUseCase;
-
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.regex.Pattern;
-
-import static vn.shoestore.shared.constants.ExceptionMessage.INVALID_PASSWORD;
 
 @UseCase
 @RequiredArgsConstructor
@@ -59,7 +57,7 @@ public class AuthUseCaseImpl implements IAuthUseCase {
   @Transactional
   public LoginResponse login(LoginRequest request) throws IllegalAccessException {
     User user = userAdapter.getUserByUsername(request.getUsername());
-    userService.enrichRole(Collections.singletonList(user));
+    userService.enrichRole(Stream.of(user).filter(Objects::nonNull).toList());
     if (Objects.isNull(user)) {
       throw new NotAuthorizedException(ExceptionMessage.LOGIN_FAIL);
     }

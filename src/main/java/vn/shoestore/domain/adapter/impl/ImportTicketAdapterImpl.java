@@ -1,5 +1,9 @@
 package vn.shoestore.domain.adapter.impl;
 
+import static vn.shoestore.shared.constants.ExceptionMessage.TICKET_NOT_FOUND;
+
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,11 +21,6 @@ import vn.shoestore.infrastructure.repository.repository.ProductAmountRepository
 import vn.shoestore.shared.anotation.Adapter;
 import vn.shoestore.shared.exceptions.InputNotValidException;
 import vn.shoestore.shared.utils.ModelMapperUtils;
-
-import java.util.List;
-import java.util.Optional;
-
-import static vn.shoestore.shared.constants.ExceptionMessage.TICKET_NOT_FOUND;
 
 @Adapter
 @RequiredArgsConstructor
@@ -88,5 +87,12 @@ public class ImportTicketAdapterImpl implements ImportTicketAdapter {
         importTicketRepository.getAllByConditions(
             PageRequest.of(request.getPage() - 1, request.getSize())),
         ImportTicket.class);
+  }
+
+  @Override
+  public List<ProductAmount> getAllProductPropertiesIdsForUpdate(List<Long> productPropertiesIds) {
+    return ModelMapperUtils.mapList(
+        productAmountRepository.findAllByProductPropertiesIdInForUpdate(productPropertiesIds),
+        ProductAmount.class);
   }
 }

@@ -1,8 +1,11 @@
 package vn.shoestore.domain.service;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,12 +18,6 @@ import vn.shoestore.domain.model.UserRole;
 import vn.shoestore.shared.dto.CustomUserDetails;
 import vn.shoestore.shared.utils.ModelTransformUtils;
 import vn.shoestore.shared.utils.SecurityUtils;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +37,7 @@ public class UserService implements UserDetailsService {
   }
 
   public void enrichRole(List<User> users) {
+    if (users == null || users.isEmpty()) return;
     List<Long> userIds = ModelTransformUtils.getAttribute(users, User::getId);
     List<UserRole> userRoles = roleAdapter.findAllByUserIdIn(userIds);
 

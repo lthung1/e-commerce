@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
-import vn.shoestore.application.request.AddToCartData;
 import vn.shoestore.application.request.AddToCartRequest;
 import vn.shoestore.application.request.UpdateCartAmountRequest;
 import vn.shoestore.application.response.CartResponse;
@@ -41,7 +40,7 @@ public class CartUseCaseImpl implements ICartUseCase {
       throw new NotAuthorizedException(NOT_VALID_USER_DETAILS);
     }
     User user = customUserDetails.getUser();
-    Cart cart = cartAdapter.getCartById(user.getId());
+    Cart cart = cartAdapter.getCartByUserId(user.getId());
 
     if (Objects.isNull(cart)) {
       return buildEmptyCart(user);
@@ -61,7 +60,7 @@ public class CartUseCaseImpl implements ICartUseCase {
     }
     User user = customUserDetails.getUser();
 
-    Cart cart = cartAdapter.getCartById(user.getId());
+    Cart cart = cartAdapter.getCartByUserId(user.getId());
     if (Objects.isNull(cart)) {
       cart =
           cartAdapter.save(
@@ -71,10 +70,10 @@ public class CartUseCaseImpl implements ICartUseCase {
                   .updatedDate(LocalDateTime.now())
                   .build());
     }
-    List<AddToCartData> data = request.getData();
+    List<AddToCartRequest> data = Collections.singletonList(request);
 
-    List<Long> productIds = ModelTransformUtils.getAttribute(data, AddToCartData::getProductId);
-    List<Integer> sizes = ModelTransformUtils.getAttribute(data, AddToCartData::getSize);
+    List<Long> productIds = ModelTransformUtils.getAttribute(data, AddToCartRequest::getProductId);
+    List<Integer> sizes = ModelTransformUtils.getAttribute(data, AddToCartRequest::getSize);
 
     List<ProductProperties> productProperties =
         productPropertiesAdapter.findAllByProductIdInAndSizeInAndIsAble(productIds, sizes, true);
@@ -97,12 +96,9 @@ public class CartUseCaseImpl implements ICartUseCase {
   @Override
   public void deleteProductInCart(List<Long> productPropertiesIds) {
     CustomUserDetails customUserDetails = AuthUtils.getAuthUserDetails();
-    if (Objects.isNull(customUserDetails) || Objects.isNull(customUserDetails.getUser())) {
-      throw new NotAuthorizedException(NOT_VALID_USER_DETAILS);
-    }
     User user = customUserDetails.getUser();
-    Cart cart = cartAdapter.getCartById(user.getId());
-
+    Cart cart = cartAdapter.getCartByUserId(user.getId());
+    if(cart == null) return;
     List<ProductCart> productCarts = cart.getProductCarts();
     List<Long> deletedIds =
         productCarts.stream()
@@ -122,7 +118,8 @@ public class CartUseCaseImpl implements ICartUseCase {
       throw new NotAuthorizedException(NOT_VALID_USER_DETAILS);
     }
     User user = customUserDetails.getUser();
-    Cart cart = cartAdapter.getCartById(user.getId());
+    Cart cart = cartAdapter.getCartByUserId(user.getId());
+    if (cart == null) return;
 
     Optional<ProductCart> productCartOptional =
         cart.getProductCarts().stream()
@@ -140,11 +137,11 @@ public class CartUseCaseImpl implements ICartUseCase {
   }
 
   private void saveNonExistCartProduct(
-      List<ProductProperties> notExistProperties, List<AddToCartData> data, Long cartId) {
+      List<ProductProperties> notExistProperties, List<AddToCartRequest> data, Long cartId) {
     if (notExistProperties.isEmpty()) return;
     List<ProductCart> savedProductCarts = new ArrayList<>();
     for (ProductProperties properties : notExistProperties) {
-      Optional<AddToCartData> optionalData =
+      Optional<AddToCartRequest> optionalData =
           data.stream()
               .filter(
                   e ->
@@ -165,7 +162,7 @@ public class CartUseCaseImpl implements ICartUseCase {
 
   private void saveExistCartProduct(
       List<ProductCart> productCarts,
-      List<AddToCartData> data,
+      List<AddToCartRequest> data,
       Map<Long, ProductProperties> productPropertiesMap) {
     if (productCarts.isEmpty()) return;
 
@@ -174,7 +171,7 @@ public class CartUseCaseImpl implements ICartUseCase {
       ProductProperties properties = productPropertiesMap.get(productCart.getProductPropertiesId());
       if (Objects.isNull(properties)) continue;
 
-      Optional<AddToCartData> optionalData =
+      Optional<AddToCartRequest> optionalData =
           data.stream()
               .filter(
                   e ->
@@ -183,7 +180,7 @@ public class CartUseCaseImpl implements ICartUseCase {
               .findFirst();
 
       if (optionalData.isEmpty()) continue;
-      AddToCartData addToCartData = optionalData.get();
+      AddToCartRequest addToCartData = optionalData.get();
 
       productCart.setAmount(productCart.getAmount() + addToCartData.getAmount());
       savedProductCarts.add(productCart);

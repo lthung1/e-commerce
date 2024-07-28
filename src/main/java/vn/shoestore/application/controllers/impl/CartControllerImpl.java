@@ -1,11 +1,11 @@
 package vn.shoestore.application.controllers.impl;
 
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import vn.shoestore.application.controllers.ICartController;
 import vn.shoestore.application.request.AddToCartRequest;
-import vn.shoestore.application.request.DeleteProductCartRequest;
 import vn.shoestore.application.request.UpdateCartAmountRequest;
 import vn.shoestore.application.response.BaseResponse;
 import vn.shoestore.application.response.CartResponse;
@@ -29,8 +29,8 @@ public class CartControllerImpl implements ICartController {
   }
 
   @Override
-  public ResponseEntity<BaseResponse> deleteFromCart(DeleteProductCartRequest request) {
-    iCartUseCase.deleteProductInCart(request.getProductPropertiesIds());
+  public ResponseEntity<BaseResponse> deleteFromCart(Long id) {
+    iCartUseCase.deleteProductInCart(Collections.singletonList(id));
     return ResponseFactory.success();
   }
 

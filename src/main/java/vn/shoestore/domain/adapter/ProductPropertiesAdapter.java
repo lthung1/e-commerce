@@ -14,4 +14,6 @@ public interface ProductPropertiesAdapter {
 
   List<ProductProperties> findAllIdIn(List<Long> ids);
 
+  List<ProductProperties> findAllIdInForUpdate(List<Long> ids);
+
 }

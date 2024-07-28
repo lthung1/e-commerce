@@ -26,4 +26,6 @@ public interface ImportTicketAdapter {
   void deleteTicket(Long ticketId);
 
   Page<ImportTicket> findAllByConditions(GetTicketRequest request);
+
+  List<ProductAmount> getAllProductPropertiesIdsForUpdate(List<Long> productPropertiesIds);
 }

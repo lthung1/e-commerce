@@ -1,5 +1,10 @@
 package vn.shoestore.usecases.logic.product.impl;
 
+import static vn.shoestore.shared.constants.ExceptionMessage.PRODUCT_NOT_FOUND;
+
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import vn.shoestore.application.request.SearchProductRequest;
@@ -13,12 +18,6 @@ import vn.shoestore.shared.exceptions.InputNotValidException;
 import vn.shoestore.shared.utils.ModelMapperUtils;
 import vn.shoestore.shared.utils.ModelTransformUtils;
 import vn.shoestore.usecases.logic.product.IGetProductUseCase;
-
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static vn.shoestore.shared.constants.ExceptionMessage.PRODUCT_NOT_FOUND;
 
 @UseCase
 @RequiredArgsConstructor
@@ -106,6 +105,7 @@ public class GetProductUseCaseImpl implements IGetProductUseCase {
 
       for (Promotion promotion : promotions) {
         if (now.isAfter(promotion.getEndDate()) || now.isBefore(promotion.getStartDate())) continue;
+        response.setPromotionId(promotion.getId());
         response.setIsPromotion(true);
         response.setPercentDiscount(promotion.getPercentDiscount());
         response.setPromotionPrice(

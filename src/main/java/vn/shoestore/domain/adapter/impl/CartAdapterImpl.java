@@ -56,4 +56,13 @@ public class CartAdapterImpl implements CartAdapter {
     return ModelMapperUtils.mapList(
         productCartRepository.findAllByCartId(cartId), ProductCart.class);
   }
+
+  @Override
+  public Cart getCartByUserId(Long userId) {
+    Optional<CartEntity> cartOptional = cartRepository.findByUserId(userId);
+    if (cartOptional.isEmpty()) return null;
+    Cart cart = ModelMapperUtils.mapper(cartOptional.get(), Cart.class);
+    enrichProductCart(cart);
+    return cart;
+  }
 }
