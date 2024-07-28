@@ -1,8 +1,8 @@
 package vn.shoestore.domain.adapter;
 
 import java.util.List;
-import java.util.Optional;
-
+import org.springframework.data.domain.Page;
+import vn.shoestore.application.request.GetAllBillRequest;
 import vn.shoestore.domain.model.Bill;
 import vn.shoestore.domain.model.ProductBill;
 
@@ -12,4 +12,8 @@ public interface BillAdapter {
   void saveProductBill(List<ProductBill> productBills);
 
   Bill findBillById(Long billId);
+
+  Page<Bill> findAllByByConditions(GetAllBillRequest request, Long userId);
+
+  List<ProductBill> findAllByBillIdIn(List<Long> billIds);
 }

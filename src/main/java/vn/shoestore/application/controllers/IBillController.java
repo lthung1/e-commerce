@@ -5,7 +5,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.shoestore.application.request.BuyNowRequest;
 import vn.shoestore.application.request.CreateBillRequest;
+import vn.shoestore.application.request.GetAllBillRequest;
 import vn.shoestore.application.response.BaseResponse;
+import vn.shoestore.application.response.BillResponse;
+import vn.shoestore.application.response.BillResponseData;
 
 @RestController
 @RequestMapping("/api/v1/bill")
@@ -16,7 +19,16 @@ public interface IBillController {
   @PutMapping("confirm-purchase/{id}")
   ResponseEntity<BaseResponse> confirmPurchase(@PathVariable Long id);
 
-
   @PostMapping("buy-now")
   ResponseEntity<BaseResponse> buyNow(@RequestBody @Valid BuyNowRequest request);
+
+  @GetMapping("get-all")
+  ResponseEntity<BaseResponse<BillResponse>> getBillByConditions(
+      @RequestBody GetAllBillRequest request);
+
+  @PostMapping("get-bill-info/{id}")
+  ResponseEntity<BaseResponse<BillResponseData>> getOneBill(@PathVariable Long id);
+
+  @PostMapping("cancel-order/{id}")
+  ResponseEntity<BaseResponse> cancelOrder(@PathVariable Long id);
 }

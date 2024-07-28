@@ -5,19 +5,25 @@ import static vn.shoestore.shared.constants.ExceptionMessage.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 import vn.shoestore.application.request.BuyNowRequest;
 import vn.shoestore.application.request.CreateBillRequest;
+import vn.shoestore.application.request.GetAllBillRequest;
+import vn.shoestore.application.response.BillResponse;
+import vn.shoestore.application.response.BillResponseData;
 import vn.shoestore.application.response.ProductResponse;
 import vn.shoestore.domain.adapter.*;
 import vn.shoestore.domain.model.*;
 import vn.shoestore.shared.anotation.UseCase;
 import vn.shoestore.shared.dto.BuyNowProductDTO;
 import vn.shoestore.shared.dto.CustomUserDetails;
+import vn.shoestore.shared.dto.ProductBilDTO;
 import vn.shoestore.shared.enums.BillStatusEnum;
 import vn.shoestore.shared.exceptions.InputNotValidException;
 import vn.shoestore.shared.exceptions.NotAuthorizedException;
 import vn.shoestore.shared.utils.AuthUtils;
+import vn.shoestore.shared.utils.ModelMapperUtils;
 import vn.shoestore.shared.utils.ModelTransformUtils;
 import vn.shoestore.usecases.logic.bill.IBillUseCase;
 import vn.shoestore.usecases.logic.product.IGetProductUseCase;
@@ -103,7 +109,108 @@ public class BillUseCaseImpl implements IBillUseCase {
     validateAmountBuyNow(products, productAmounts, properties);
 
     extractProductInStorageForBuyNow(request.getProducts(), productAmounts, properties);
-    createBillForBuyNow(request , properties , isOnlineTransaction);
+    createBillForBuyNow(request, properties, isOnlineTransaction);
+  }
+
+  @Override
+  public BillResponse getBillByFilter(GetAllBillRequest request) {
+    CustomUserDetails customUserDetails = AuthUtils.getAuthUserDetails();
+    User user = customUserDetails.getUser();
+    Long userId = null;
+    if (!user.isAdmin()) {
+      userId = user.getId();
+    }
+
+    Page<Bill> billPage = billAdapter.findAllByByConditions(request, userId);
+    if (billPage.isEmpty()) return BillResponse.builder().build();
+
+    List<Bill> bills = billPage.getContent();
+    List<BillResponseData> data = ModelMapperUtils.mapList(bills, BillResponseData.class);
+    enrichProductBill(data);
+
+    return BillResponse.builder().data(data).total(billPage.getTotalElements()).build();
+  }
+
+  @Override
+  public BillResponseData getBillById(Long id) {
+    Bill bill = billAdapter.findBillById(id);
+    BillResponseData data = ModelMapperUtils.mapper(bill, BillResponseData.class);
+    enrichProductBill(Collections.singletonList(data));
+    return data;
+  }
+
+  @Override
+  @Transactional
+  public void cancelBill(Long billId) {
+    Bill bill = billAdapter.findBillById(billId);
+    List<ProductBill> productBills =
+        billAdapter.findAllByBillIdIn(Collections.singletonList(billId));
+
+    List<ProductAmount> productAmounts =
+        importTicketAdapter.getAllProductPropertiesIdsForUpdate(
+            ModelTransformUtils.getAttribute(productBills, ProductBill::getProductPropertiesId));
+
+    Map<Long, ProductBill> mapProductBills =
+        ModelTransformUtils.toMap(productBills, ProductBill::getProductPropertiesId);
+    for (ProductAmount productAmount : productAmounts) {
+      ProductBill productBill = mapProductBills.get(productAmount.getProductPropertiesId());
+      if (Objects.isNull(productBill)) continue;
+      productAmount.setAmount(productAmount.getAmount() + productBill.getAmount());
+    }
+
+    bill.setStatus(BillStatusEnum.CANCEL.getStatus());
+    billAdapter.saveBill(bill);
+    importTicketAdapter.saveProductAmount(productAmounts);
+  }
+
+  private void enrichProductBill(List<BillResponseData> data) {
+    List<ProductBill> productBills =
+        billAdapter.findAllByBillIdIn(
+            ModelTransformUtils.getAttribute(data, BillResponseData::getId));
+
+    List<Long> productPropertiesIds =
+        ModelTransformUtils.getAttribute(productBills, ProductBill::getProductPropertiesId).stream()
+            .distinct()
+            .toList();
+
+    List<ProductProperties> properties = productPropertiesAdapter.findAllIdIn(productPropertiesIds);
+
+    List<Long> productIds =
+        ModelTransformUtils.getAttribute(properties, ProductProperties::getProductId);
+
+    List<ProductResponse> productResponses = iGetProductUseCase.findByIds(productIds);
+
+    Map<Long, List<ProductBill>> mapProductBills =
+        ModelTransformUtils.toMapList(productBills, ProductBill::getBillId);
+
+    Map<Long, ProductProperties> mapProductProperties =
+        ModelTransformUtils.toMap(properties, ProductProperties::getId);
+
+    Map<Long, ProductResponse> mapProductResponse =
+        ModelTransformUtils.toMap(productResponses, ProductResponse::getId);
+
+    for (BillResponseData responseData : data) {
+      List<ProductBill> productInBills =
+          mapProductBills.getOrDefault(responseData.getId(), Collections.emptyList());
+      if (productInBills.isEmpty()) continue;
+      List<ProductBilDTO> products = new ArrayList<>();
+      for (ProductBill productBill : productInBills) {
+        ProductProperties productProperties =
+            mapProductProperties.get(productBill.getProductPropertiesId());
+        if (Objects.isNull(productProperties)) continue;
+        ProductResponse productResponse = mapProductResponse.get(productProperties.getProductId());
+        if (Objects.isNull(productResponse)) continue;
+        products.add(
+            ProductBilDTO.builder()
+                .productId(productResponse.getId())
+                .productPropertiesId(productProperties.getId())
+                .price(productBill.getTotalPrice() * productBill.getAmount())
+                .size(productProperties.getSize())
+                .product(productResponse)
+                .build());
+      }
+      responseData.setProducts(products);
+    }
   }
 
   private void validateAmount(
