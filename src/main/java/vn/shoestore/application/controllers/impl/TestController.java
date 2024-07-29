@@ -15,7 +15,6 @@ import vn.shoestore.shared.utils.SecurityUtils;
 public class TestController {
 
   @GetMapping("/ping")
-  @PreAuthorize("@userService.hasRole('USER_ROLE')")
   public ResponseEntity<BaseResponse<User>> ping() {
     return ResponseFactory.success(SecurityUtils.getCurrentUserDetails());
   }
