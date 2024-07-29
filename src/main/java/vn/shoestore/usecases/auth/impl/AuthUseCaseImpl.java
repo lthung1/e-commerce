@@ -18,11 +18,11 @@ import vn.shoestore.application.response.LoginResponse;
 import vn.shoestore.domain.adapter.CartAdapter;
 import vn.shoestore.domain.adapter.UserAdapter;
 import vn.shoestore.domain.adapter.UserRefreshTokenAdapter;
-import vn.shoestore.domain.model.Cart;
-import vn.shoestore.domain.model.User;
-import vn.shoestore.domain.model.UserRefreshToken;
+import vn.shoestore.domain.model.*;
 import vn.shoestore.domain.service.UserService;
 import vn.shoestore.infrastructure.configuration.authen.JwtTokenProvider;
+import vn.shoestore.infrastructure.repository.entity.UserRoleEntity;
+import vn.shoestore.infrastructure.repository.repository.UserRoleRepository;
 import vn.shoestore.shared.anotation.UseCase;
 import vn.shoestore.shared.constants.ExceptionMessage;
 import vn.shoestore.shared.exceptions.InputNotValidException;
@@ -46,6 +46,7 @@ public class AuthUseCaseImpl implements IAuthUseCase {
   private final UserService userService;
 
   private final CartAdapter cartAdapter;
+  private final UserRoleRepository userRoleRepository;
 
   @Value("${vn.shoe_store.secret.jwt_expiration_ms}")
   private int jwtExpirationMs;
@@ -72,6 +73,10 @@ public class AuthUseCaseImpl implements IAuthUseCase {
         jwtTokenProvider.generateRefreshToken(user, ObjectUtils.convertUsingReflection(user));
     processRefreshToken(user, refreshToken);
 
+    if (Objects.isNull(user.getRoles()) || user.getRoles().isEmpty()) {
+      user.setRoles(List.of(Role.builder().id(2L).name("USER_ROLE").build()));
+    }
+
     return LoginResponse.builder()
         .accessToken(token)
         .refreshToken(refreshToken)
@@ -95,6 +100,9 @@ public class AuthUseCaseImpl implements IAuthUseCase {
     User savedUser = userAdapter.save(user);
 
     createCart(savedUser);
+    userRoleRepository.save(
+        ModelMapperUtils.mapper(
+            UserRole.builder().userId(savedUser.getId()).roleId(2L).build(), UserRoleEntity.class));
     return savedUser;
   }
 
