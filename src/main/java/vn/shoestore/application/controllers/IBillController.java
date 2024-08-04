@@ -22,7 +22,7 @@ public interface IBillController {
   @PostMapping("buy-now")
   ResponseEntity<BaseResponse> buyNow(@RequestBody @Valid BuyNowRequest request);
 
-  @GetMapping("get-all")
+  @PostMapping("get-all")
   ResponseEntity<BaseResponse<BillResponse>> getBillByConditions(
       @RequestBody GetAllBillRequest request);
 
