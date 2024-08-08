@@ -23,4 +23,13 @@ public final class ExceptionMessage {
   public static final String BILL_NOT_FOUND = "Không tìm được hoá đơn";
 
   public static final String YOU_CANNOT_VIEW_THIS_BILL = "Bạn không thể xem hoá đơn này";
+
+  public static final String YOU_ARE_ALREADY_COMMENT = "Bạn đã comment cho sản phẩm này rồi";
+
+  public static final String YOU_ARE_NOT_BUY_THIS_PRODUCT =
+      "Bạn chưa mua sản phẩm này , không được phép đánh giá";
+
+  public static final String COMMENT_NOT_EXIST = "Bạn không được phép chỉnh sửa comment này";
+
+  public static final String CANNOT_DELETE_COMMENT = "Bạn không được xoá comment này";
 }

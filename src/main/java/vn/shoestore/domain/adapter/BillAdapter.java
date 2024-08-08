@@ -16,4 +16,6 @@ public interface BillAdapter {
   Page<Bill> findAllByByConditions(GetAllBillRequest request, Long userId);
 
   List<ProductBill> findAllByBillIdIn(List<Long> billIds);
+
+  List<Bill> findBillOfUserAndProductId(Long userId , Long productId);
 }

@@ -58,4 +58,10 @@ public class BillAdapterImpl implements BillAdapter {
     return ModelMapperUtils.mapList(
         productBillRepository.findAllByBillIdIn(billIds), ProductBill.class);
   }
+
+  @Override
+  public List<Bill> findBillOfUserAndProductId(Long userId, Long productId) {
+    return ModelMapperUtils.mapList(
+        billRepository.findByProductIdAndUserId(userId, productId), Bill.class);
+  }
 }

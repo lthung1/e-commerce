@@ -5,7 +5,11 @@ import vn.shoestore.shared.dto.CustomUserDetails;
 
 public class AuthUtils {
   public static CustomUserDetails getAuthUserDetails() {
-    return (CustomUserDetails)
-        SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    try {
+      return (CustomUserDetails)
+          SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    } catch (Exception e) {
+      return null;
+    }
   }
 }
