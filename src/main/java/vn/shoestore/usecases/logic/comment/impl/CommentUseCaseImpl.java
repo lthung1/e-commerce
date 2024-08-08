@@ -13,7 +13,6 @@ import vn.shoestore.application.response.CommentResponse;
 import vn.shoestore.domain.adapter.BillAdapter;
 import vn.shoestore.domain.adapter.ProductCommentAdapter;
 import vn.shoestore.domain.adapter.UserAdapter;
-import vn.shoestore.domain.model.Bill;
 import vn.shoestore.domain.model.ProductComment;
 import vn.shoestore.domain.model.ProductCommentAttachment;
 import vn.shoestore.domain.model.User;
@@ -42,14 +41,6 @@ public class CommentUseCaseImpl implements ICommentUseCase {
 
     if (comment.isPresent()) {
       throw new InputNotValidException(YOU_ARE_ALREADY_COMMENT);
-    }
-
-    List<Bill> bills =
-        billAdapter.findBillOfUserAndProductId(
-            customUserDetails.getUser().getId(), request.getProductId());
-
-    if (bills.isEmpty()) {
-      throw new InputNotValidException(YOU_ARE_NOT_BUY_THIS_PRODUCT);
     }
 
     ProductComment savedComment =
@@ -185,12 +176,12 @@ public class CommentUseCaseImpl implements ICommentUseCase {
     CustomUserDetails customUserDetails = AuthUtils.getAuthUserDetails();
     Optional<ProductComment> productCommentOptional = productCommentAdapter.findById(commentId);
     if (productCommentOptional.isEmpty()) {
-      throw new InputNotValidException(COMMENT_NOT_EXIST);
+      throw new InputNotValidException(CANNOT_DELETE_COMMENT);
     }
 
     ProductComment productComment = productCommentOptional.get();
     if (!Objects.equals(customUserDetails.getUser().getId(), productComment.getUserId())) {
-      throw new InputNotValidException(COMMENT_NOT_EXIST);
+      throw new InputNotValidException(CANNOT_DELETE_COMMENT);
     }
     productCommentAdapter.deleteProductComment(commentId);
   }

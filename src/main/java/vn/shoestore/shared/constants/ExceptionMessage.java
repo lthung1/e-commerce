@@ -32,4 +32,6 @@ public final class ExceptionMessage {
   public static final String COMMENT_NOT_EXIST = "Bạn không được phép chỉnh sửa comment này";
 
   public static final String CANNOT_DELETE_COMMENT = "Bạn không được xoá comment này";
+
+  public static final String USER_NOT_FOUND = "Không tìm được thông tin user";
 }

@@ -36,4 +36,5 @@ public class RoleAdapterImpl implements RoleAdapter {
   public void saveAll(List<Role> roles) {
     roleRepository.saveAll(ModelMapperUtils.mapList(roles , RoleEntity.class));
   }
+
 }
