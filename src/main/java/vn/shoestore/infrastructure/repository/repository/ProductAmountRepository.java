@@ -13,4 +13,7 @@ public interface ProductAmountRepository extends JpaRepository<ProductAmountEnti
   @Query(value = "select * from product_amounts for update", nativeQuery = true)
   List<ProductAmountEntity> findAllByProductPropertiesIdInForUpdate(
       List<Long> productPropertiesIds);
+
+  @Query(value = "select sum(amount) from product_amounts", nativeQuery = true)
+  Integer getSumAmount();
 }

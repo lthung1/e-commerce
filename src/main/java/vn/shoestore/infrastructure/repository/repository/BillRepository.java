@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import vn.shoestore.infrastructure.repository.entity.BillEntity;
+import vn.shoestore.shared.query_object.BillStatusObject;
+import vn.shoestore.shared.query_object.ImportProduct;
 
 @Repository
 public interface BillRepository extends JpaRepository<BillEntity, Long> {
@@ -30,5 +32,27 @@ public interface BillRepository extends JpaRepository<BillEntity, Long> {
         where b.user_id = :userId and p.id = :productId;
   """,
       nativeQuery = true)
-  List<BillEntity> findByProductIdAndUserId(Long userId , Long productId);
+  List<BillEntity> findByProductIdAndUserId(Long userId, Long productId);
+
+  @Query(
+      value =
+          """
+                    select MONTH(created_date) as month, YEAR(created_date) as year, sum(total) as total
+                    from bills
+                    where bills.status = 1
+                    GROUP BY month, year
+                  """,
+      nativeQuery = true)
+  List<ImportProduct> getBillStatistic();
+
+  @Query(
+      value =
+          """
+                  select MONTH(created_date) as month, YEAR(created_date) as year, status as status , count(*) as total
+                    from bills
+                    where status in (1 , 2)
+                    GROUP BY month, year , status;
+         """,
+      nativeQuery = true)
+  List<BillStatusObject> findBillStatusStatistic();
 }
