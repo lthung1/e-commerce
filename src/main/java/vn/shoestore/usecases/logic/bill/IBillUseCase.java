@@ -7,11 +7,11 @@ import vn.shoestore.application.response.BillResponse;
 import vn.shoestore.application.response.BillResponseData;
 
 public interface IBillUseCase {
-  void createBill(CreateBillRequest request, Boolean isOnlineTransaction);
+  BillResponseData createBill(CreateBillRequest request, Boolean isOnlineTransaction);
 
   void adminConfirmBill(Long billId);
 
-  void buyNow(BuyNowRequest request, Boolean isOnlineTransaction);
+  BillResponseData buyNow(BuyNowRequest request, Boolean isOnlineTransaction);
 
   BillResponse getBillByFilter(GetAllBillRequest request);
 

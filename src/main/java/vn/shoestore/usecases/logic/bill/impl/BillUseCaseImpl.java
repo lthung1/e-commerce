@@ -40,7 +40,7 @@ public class BillUseCaseImpl implements IBillUseCase {
 
   @Override
   @Transactional
-  public void createBill(CreateBillRequest request, Boolean isOnlineTransaction) {
+  public BillResponseData createBill(CreateBillRequest request, Boolean isOnlineTransaction) {
     CustomUserDetails customUserDetails = AuthUtils.getAuthUserDetails();
     if (Objects.isNull(customUserDetails) || Objects.isNull(customUserDetails.getUser())) {
       throw new NotAuthorizedException(NOT_VALID_USER_DETAILS);
@@ -79,7 +79,7 @@ public class BillUseCaseImpl implements IBillUseCase {
     validateAmount(productCarts, productAmounts, allProductProperties);
     // tạo hoá đơn
     extractProductInStorage(productCarts, productAmounts);
-    createBill(request, productCarts, allProductProperties, isOnlineTransaction);
+    return createBill(request, productCarts, allProductProperties, isOnlineTransaction);
   }
 
   @Override
@@ -91,7 +91,7 @@ public class BillUseCaseImpl implements IBillUseCase {
 
   @Override
   @Transactional
-  public void buyNow(BuyNowRequest request , Boolean isOnlineTransaction) {
+  public BillResponseData buyNow(BuyNowRequest request, Boolean isOnlineTransaction) {
     List<BuyNowProductDTO> products = request.getProducts();
 
     List<Long> productIds =
@@ -109,7 +109,7 @@ public class BillUseCaseImpl implements IBillUseCase {
     validateAmountBuyNow(products, productAmounts, properties);
 
     extractProductInStorageForBuyNow(request.getProducts(), productAmounts, properties);
-    createBillForBuyNow(request, properties, isOnlineTransaction);
+    return createBillForBuyNow(request, properties, isOnlineTransaction);
   }
 
   @Override
@@ -212,6 +212,7 @@ public class BillUseCaseImpl implements IBillUseCase {
                 .price(productBill.getTotalPrice() * productBill.getAmount())
                 .size(productProperties.getSize())
                 .product(productResponse)
+                .amount(productBill.getAmount())
                 .build());
       }
       responseData.setProducts(products);
@@ -301,7 +302,7 @@ public class BillUseCaseImpl implements IBillUseCase {
     importTicketAdapter.saveProductAmount(productAmounts);
   }
 
-  private void createBill(
+  private BillResponseData createBill(
       CreateBillRequest request,
       List<ProductCart> productCarts,
       List<ProductProperties> allProductProperties,
@@ -361,9 +362,12 @@ public class BillUseCaseImpl implements IBillUseCase {
     billAdapter.saveBill(savedBill);
     cartAdapter.deleteProductCarts(
         ModelTransformUtils.getAttribute(productCarts, ProductCart::getId));
+    BillResponseData response = ModelMapperUtils.mapper(savedBill, BillResponseData.class);
+    enrichProductBill(Collections.singletonList(response));
+    return response;
   }
 
-  private void createBillForBuyNow(
+  private BillResponseData createBillForBuyNow(
       BuyNowRequest request,
       List<ProductProperties> allProductProperties,
       Boolean isOnlineTransaction) {
@@ -422,7 +426,11 @@ public class BillUseCaseImpl implements IBillUseCase {
     billAdapter.saveProductBill(productBills);
 
     savedBill.setTotal(total);
-    billAdapter.saveBill(savedBill);
+    savedBill = billAdapter.saveBill(savedBill);
+
+    BillResponseData response = ModelMapperUtils.mapper(savedBill, BillResponseData.class);
+    enrichProductBill(Collections.singletonList(response));
+    return response;
   }
 
   private void extractProductInStorageForBuyNow(

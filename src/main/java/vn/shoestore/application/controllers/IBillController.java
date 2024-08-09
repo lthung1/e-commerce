@@ -14,13 +14,14 @@ import vn.shoestore.application.response.BillResponseData;
 @RequestMapping("/api/v1/bill")
 public interface IBillController {
   @PostMapping("create-bill")
-  ResponseEntity<BaseResponse> createBill(@RequestBody @Valid CreateBillRequest request);
+  ResponseEntity<BaseResponse<BillResponseData>> createBill(
+      @RequestBody @Valid CreateBillRequest request);
 
   @PutMapping("confirm-purchase/{id}")
   ResponseEntity<BaseResponse> confirmPurchase(@PathVariable Long id);
 
   @PostMapping("buy-now")
-  ResponseEntity<BaseResponse> buyNow(@RequestBody @Valid BuyNowRequest request);
+  ResponseEntity<BaseResponse<BillResponseData>> buyNow(@RequestBody @Valid BuyNowRequest request);
 
   @PostMapping("get-all")
   ResponseEntity<BaseResponse<BillResponse>> getBillByConditions(

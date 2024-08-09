@@ -18,5 +18,6 @@ public class ProductBilDTO {
   private Long productPropertiesId;
   private Integer size;
   private Double price;
+  private Integer amount;
   private ProductResponse product;
 }

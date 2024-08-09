@@ -19,9 +19,8 @@ public class BillControllerImpl implements IBillController {
   private final IBillUseCase iBillUseCase;
 
   @Override
-  public ResponseEntity<BaseResponse> createBill(CreateBillRequest request) {
-    iBillUseCase.createBill(request, false);
-    return ResponseFactory.success();
+  public ResponseEntity<BaseResponse<BillResponseData>> createBill(CreateBillRequest request) {
+    return ResponseFactory.success(iBillUseCase.createBill(request, false));
   }
 
   @Override
@@ -31,9 +30,8 @@ public class BillControllerImpl implements IBillController {
   }
 
   @Override
-  public ResponseEntity<BaseResponse> buyNow(BuyNowRequest request) {
-    iBillUseCase.buyNow(request, false);
-    return ResponseFactory.success();
+  public ResponseEntity<BaseResponse<BillResponseData>> buyNow(BuyNowRequest request) {
+    return ResponseFactory.success(iBillUseCase.buyNow(request, false));
   }
 
   @Override
