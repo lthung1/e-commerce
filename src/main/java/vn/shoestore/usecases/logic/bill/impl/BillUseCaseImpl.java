@@ -209,7 +209,7 @@ public class BillUseCaseImpl implements IBillUseCase {
             ProductBilDTO.builder()
                 .productId(productResponse.getId())
                 .productPropertiesId(productProperties.getId())
-                .price(productBill.getTotalPrice() * productBill.getAmount())
+                .price((double) (productBill.getPrice() * productBill.getAmount()))
                 .size(productProperties.getSize())
                 .product(productResponse)
                 .amount(productBill.getAmount())
