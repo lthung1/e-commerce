@@ -2,13 +2,12 @@ package vn.shoestore.shared.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import vn.shoestore.application.response.ProductResponse;
-
-import java.util.Objects;
 
 @Data
 @NoArgsConstructor
@@ -27,8 +26,14 @@ public class ProductCartDTO {
   private ProductResponse product;
 
   public Double getPrice() {
-    if (Objects.isNull(product) || Objects.isNull(product.getPrice())) return 0d;
-    return (double) (this.amount * this.product.getPrice());
+    if (Objects.isNull(product)
+        || (Objects.isNull(product.getPrice()) && Objects.isNull(product.getPromotionPrice())))
+      return 0d;
+    Double price =
+        Objects.nonNull(product.getPromotionPrice())
+            ? product.getPromotionPrice()
+            : product.getPrice();
+    return (this.amount * price);
   }
 
   public Float getPercentDiscount() {
