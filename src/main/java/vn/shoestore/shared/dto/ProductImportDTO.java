@@ -2,10 +2,13 @@ package vn.shoestore.shared.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vn.shoestore.application.response.ProductResponse;
 import vn.shoestore.domain.model.Product;
 
 @Data
@@ -20,5 +23,5 @@ public class ProductImportDTO {
   private Integer amount;
   private String name;
   private Double importCost;
-  private Product product;
+  private ProductResponse product;
 }

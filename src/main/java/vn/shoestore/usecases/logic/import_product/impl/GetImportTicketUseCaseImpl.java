@@ -1,16 +1,17 @@
 package vn.shoestore.usecases.logic.import_product.impl;
 
+import java.util.*;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import vn.shoestore.application.response.ImportTicketResponse;
+import vn.shoestore.application.response.ProductResponse;
 import vn.shoestore.domain.adapter.*;
 import vn.shoestore.domain.model.*;
 import vn.shoestore.shared.anotation.UseCase;
 import vn.shoestore.shared.dto.ProductImportDTO;
 import vn.shoestore.shared.utils.ModelTransformUtils;
 import vn.shoestore.usecases.logic.import_product.IGetImportTicketUseCase;
-
-import java.util.*;
-import java.util.stream.Stream;
+import vn.shoestore.usecases.logic.product.IGetProductUseCase;
 
 @UseCase
 @RequiredArgsConstructor
@@ -20,7 +21,7 @@ public class GetImportTicketUseCaseImpl implements IGetImportTicketUseCase {
   private final UserAdapter userAdapter;
   private final BrandAdapter brandAdapter;
   private final ProductPropertiesAdapter productPropertiesAdapter;
-  private final ProductAdapter productAdapter;
+  private final IGetProductUseCase iGetProductUseCase;
 
   @Override
   public ImportTicketResponse getById(Long id) {
@@ -80,18 +81,19 @@ public class GetImportTicketUseCaseImpl implements IGetImportTicketUseCase {
     List<Long> productIds =
         ModelTransformUtils.getAttribute(productProperties, ProductProperties::getProductId);
 
-    List<Product> products = productAdapter.findAllByIds(productIds);
+    List<ProductResponse> products = iGetProductUseCase.findByIds(productIds);
 
     Map<Long, ProductProperties> productPropertiesMap =
         ModelTransformUtils.toMap(productProperties, ProductProperties::getId);
 
-    Map<Long, Product> productMap = ModelTransformUtils.toMap(products, Product::getId);
+    Map<Long, ProductResponse> productMap =
+        ModelTransformUtils.toMap(products, ProductResponse::getId);
 
     List<ProductImportDTO> productData = new ArrayList<>();
     for (ImportTicketProduct ticketProduct : importTicketProducts) {
       ProductProperties properties =
           productPropertiesMap.get(ticketProduct.getProductPropertiesId());
-      Product product = null;
+      ProductResponse product = null;
       if (Objects.nonNull(properties)) {
         product = productMap.get(properties.getProductId());
       }
